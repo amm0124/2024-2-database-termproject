@@ -1,0 +1,31 @@
+name: "🐞 Bug"
+description: "버그 발생 template"
+labels: "🐞 Bug"
+body:
+  - type: textarea
+    attributes:
+      label: 🐞 Describe
+      description: 버그 설명
+      placeholder: 자세히 적어주세요!
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: 📄 Logs
+      description: 로그 있으면 작성
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: 🌏 Environment
+      description: 버그 발생 환경 및 상황
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: 🙋🏻 More
+      description: 더 하고 싶은 말이 있다면 작성해 주세요~
