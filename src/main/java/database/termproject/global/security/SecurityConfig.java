@@ -1,10 +1,9 @@
 package database.termproject.global.security;
 
+import database.termproject.global.security.filter.CustomUsernamePasswordAuthenticationFilter;
 import database.termproject.global.util.JwtUtil;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Description;
