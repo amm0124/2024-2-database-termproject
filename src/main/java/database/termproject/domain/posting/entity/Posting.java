@@ -23,15 +23,18 @@ public class Posting extends BaseEntity {
 
     private String title;
 
+    private String game;
+
     private String content;
 
     @Enumerated(EnumType.STRING) // Enum이 문자열로 저장되도록 설정
     private PostingType postingType;
 
     @Builder
-    public Posting(Member member, String title, String content, PostingType postingType) {
+    public Posting(Member member, String title, String game, String content, PostingType postingType) {
         this.member = member;
         this.title = title;
+        this.game = game;
         this.content = content;
         this.postingType = postingType;
     }
