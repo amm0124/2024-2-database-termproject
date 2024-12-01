@@ -4,5 +4,6 @@ import database.termproject.domain.posting.entity.PostingType;
 
 public record PostingRequest(
         String title,
+        String game,
         String content) {
 }
