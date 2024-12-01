@@ -1,6 +1,8 @@
 package database.termproject.global.security;
 
+import database.termproject.domain.member.service.MemberService;
 import database.termproject.global.security.filter.CustomUsernamePasswordAuthenticationFilter;
+import database.termproject.global.security.filter.JwtAuthenticationFilter;
 import database.termproject.global.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -28,6 +30,7 @@ public class SecurityConfig {
 
     private final JwtUtil jwtUtil;
     private final AuthenticationConfiguration authenticationConfiguration;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
 
     @Bean
@@ -82,22 +85,30 @@ public class SecurityConfig {
 
         // 인증 필요한 경로
         http.authorizeHttpRequests((authorize) -> authorize
-                .requestMatchers("/api/farm/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/product/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/review/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/health").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/image/**").permitAll()
-                .requestMatchers("/api/v1/member/signup", "/h2-console/**","/api/login", "api/reissue", "api/payment/**", "api/order/**", "api/reservation/**", "/api/v1/farmer/reservations").permitAll()
-                .requestMatchers("/api/need-auth/**").authenticated()
-                .requestMatchers("/oauth2/authentication/kakao").authenticated()
-                .requestMatchers("/error", "/api/login").permitAll()
+                .requestMatchers(
+                        "/api/v1/member/signup",
+                        "api/login",
+                        "/h2-console/**").permitAll() //.hasRole("ROLE_ADMIN")
+                .requestMatchers("/api/v1/posting/**").authenticated()
         );
+
+         /*   .requestMatchers("/api/farm/**").permitAll()
+    .requestMatchers(HttpMethod.GET, "/api/product/**").permitAll()
+    .requestMatchers(HttpMethod.GET, "/api/review/**").permitAll()
+    .requestMatchers(HttpMethod.GET, "/health").permitAll()
+    .requestMatchers(HttpMethod.GET, "/api/image/**").permitAll()
+    .requestMatchers("/api/v1/member/signup", "/h2-console/**","/api/login", "api/reissue", "api/payment/**", "api/order/**", "api/reservation/**", "/api/v1/farmer/reservations").permitAll()
+    .requestMatchers("/api/need-auth/**").authenticated()
+    .requestMatchers("/oauth2/authentication/kakao").authenticated()
+    .requestMatchers("/error", "/api/login").permitAll()*/
 
 
         CustomUsernamePasswordAuthenticationFilter customUsernameFilter =
                 new CustomUsernamePasswordAuthenticationFilter(authenticationManager(authenticationConfiguration), jwtUtil);
         customUsernameFilter.setFilterProcessesUrl("/api/login");
         http.addFilterAt(customUsernameFilter, UsernamePasswordAuthenticationFilter.class);
+
+        http.addFilterBefore(jwtAuthenticationFilter, CustomUsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
