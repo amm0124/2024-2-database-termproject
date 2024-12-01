@@ -1,7 +1,8 @@
-package database.termproject.global.security;
+package database.termproject.global.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import database.termproject.domain.member.entity.Member;
+import database.termproject.global.security.UserDetailsImpl;
 import database.termproject.global.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

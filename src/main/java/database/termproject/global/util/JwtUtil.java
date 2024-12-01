@@ -1,7 +1,6 @@
 package database.termproject.global.util;
 
 import database.termproject.domain.member.entity.Member;
-import database.termproject.domain.member.service.MemberService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -46,6 +45,36 @@ public class JwtUtil {
     }
 
 
+    public String getEmail(String token) {
+
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("email", String.class);
+    }
+
+    public String getRole(String token) {
+
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("role", String.class);
+    }
+
+    public Boolean isExpired(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getExpiration()
+                .before(new Date()
+                );
+    }
 
     private Map<String, Object> createClaims(Member member) {
         Map<String, Object> claims = new HashMap<>();
