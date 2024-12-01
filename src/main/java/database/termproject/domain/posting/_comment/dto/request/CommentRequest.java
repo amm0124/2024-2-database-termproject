@@ -1,6 +1,7 @@
 package database.termproject.domain.posting._comment.dto.request;
 
 public record CommentRequest(
-        Long postId,
+        Long postingId,
+        Long parentCommentId,
         String content) {
 }

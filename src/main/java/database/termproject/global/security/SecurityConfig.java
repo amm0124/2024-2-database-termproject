@@ -89,18 +89,8 @@ public class SecurityConfig {
                         "/api/v1/member/signup",
                         "api/login",
                         "/h2-console/**").permitAll() //.hasRole("ROLE_ADMIN")
-                .requestMatchers("/api/v1/posting/**").authenticated()
+                .requestMatchers("/api/v1/posting/**", "/api/v1/comment/**").authenticated()
         );
-
-         /*   .requestMatchers("/api/farm/**").permitAll()
-    .requestMatchers(HttpMethod.GET, "/api/product/**").permitAll()
-    .requestMatchers(HttpMethod.GET, "/api/review/**").permitAll()
-    .requestMatchers(HttpMethod.GET, "/health").permitAll()
-    .requestMatchers(HttpMethod.GET, "/api/image/**").permitAll()
-    .requestMatchers("/api/v1/member/signup", "/h2-console/**","/api/login", "api/reissue", "api/payment/**", "api/order/**", "api/reservation/**", "/api/v1/farmer/reservations").permitAll()
-    .requestMatchers("/api/need-auth/**").authenticated()
-    .requestMatchers("/oauth2/authentication/kakao").authenticated()
-    .requestMatchers("/error", "/api/login").permitAll()*/
 
 
         CustomUsernamePasswordAuthenticationFilter customUsernameFilter =
