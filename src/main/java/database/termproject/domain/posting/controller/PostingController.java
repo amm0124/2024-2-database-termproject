@@ -6,10 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/api/v1/posting")
 @RestController
@@ -21,14 +18,14 @@ public class PostingController {
 
     @Secured({"ROLE_USER", "ROLE_ANONYMOUS"})
     @PostMapping("/free")
-    public ResponseEntity<?> createFreePosting(PostingRequest postingRequest) {
+    public ResponseEntity<?> createFreePosting(@RequestBody PostingRequest postingRequest) {
         postingService.createFreePosting(postingRequest);
         return ResponseEntity.ok().build();
     }
 
     @Secured({"ROLE_USER"})
     @PostMapping("/tip")
-    public ResponseEntity<?> createTipPosting(PostingRequest postingRequest) {
+    public ResponseEntity<?> createTipPosting(@RequestBody PostingRequest postingRequest) {
         //TODO : 세션에서 member 객체로 변환해야 함
         postingService.createFreePosting(postingRequest);
         return ResponseEntity.ok().build();
@@ -36,7 +33,7 @@ public class PostingController {
 
     @Secured({"ROLE_USER"})
     @PostMapping("/matching")
-    public ResponseEntity<?> createMatchingPosting(PostingRequest postingRequest) {
+    public ResponseEntity<?> createMatchingPosting(@RequestBody PostingRequest postingRequest) {
         //TODO : 세션에서 member 객체로 변환해야 함
         postingService.createFreePosting(postingRequest);
         return ResponseEntity.ok().build();

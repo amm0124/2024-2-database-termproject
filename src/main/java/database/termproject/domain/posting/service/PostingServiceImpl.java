@@ -6,6 +6,7 @@ import database.termproject.domain.posting.repository.PostingJPARepository;
 import database.termproject.domain.posting.dto.request.PostingRequest;
 import database.termproject.domain.posting.dto.response.PostingResponse;
 import database.termproject.domain.posting.entity.PostingType;
+import database.termproject.global.error.ProjectException;
 import database.termproject.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static database.termproject.global.error.ProjectError.POSTING_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -30,8 +33,6 @@ public class PostingServiceImpl implements PostingService<PostingRequest> {
 
         Member member = getMember();
 
-        log.info("member :  " + member.getEmail());
-
         Posting posting = Posting
                 .builder()
                 .member(member)
@@ -44,14 +45,23 @@ public class PostingServiceImpl implements PostingService<PostingRequest> {
         return PostingResponse.fromEntity(posting);
     }
 
+    public Posting getPostingByPostingId(Long postingId) {
+        return postingJPARepository.findById(postingId)
+                .orElseThrow(() -> new ProjectException(POSTING_NOT_FOUND));
+    }
+
 
     private Member getMember(){
+
+
         Authentication authentication = SecurityContextHolder
                 .getContext().getAuthentication();
         Object impl = authentication.getPrincipal();
         Member member = ((UserDetailsImpl) impl).getMember();
         return member;
     }
+
+
 
     /*public List<PostingResponse> getPosting(){
         //TODO : jwt에서 가져와야 함
