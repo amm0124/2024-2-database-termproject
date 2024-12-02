@@ -39,5 +39,4 @@ public class Posting extends BaseEntity {
         this.postingType = postingType;
     }
 
-
 }

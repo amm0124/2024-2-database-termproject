@@ -32,6 +32,8 @@ public class Comment extends BaseEntity {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
+    private int depth = 1;
+
     private boolean isDeleted;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -58,6 +60,21 @@ public class Comment extends BaseEntity {
 
     public void addReplies(Comment replies){
         this.replies.add(replies);
+    }
+
+    public void setCommentDepth(){
+        if(this.parentComment == null){
+            this.depth=1;
+        }else{
+            this.depth = this.parentComment.getDepth()+1;
+        }
+    }
+
+    public Long getParentCommentId(){
+        if(this.parentComment == null){
+            return null;
+        }
+        return this.parentComment.getId();
     }
 
 }
