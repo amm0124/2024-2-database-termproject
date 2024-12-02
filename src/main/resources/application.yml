@@ -26,7 +26,7 @@ spring:
 
 jwt :
   secret : termprojecttermprojecttermprojecttermproject
-  access-token-expiration-time :  86400
+  access-token-expiration-time : 8640000
 
 logging:
   level:

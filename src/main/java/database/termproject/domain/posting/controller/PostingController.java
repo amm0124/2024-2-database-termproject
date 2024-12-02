@@ -2,6 +2,7 @@ package database.termproject.domain.posting.controller;
 
 import database.termproject.domain.posting.dto.request.MatchingTournamentPostingRequest;
 import database.termproject.domain.posting.dto.request.PostingRequest;
+import database.termproject.domain.posting.dto.response.PostingDetailResponse;
 import database.termproject.domain.posting.dto.response.PostingResponse;
 import database.termproject.domain.posting.entity.Posting;
 import database.termproject.domain.posting.entity.PostingType;
@@ -19,33 +20,46 @@ import org.springframework.web.bind.annotation.*;
 public class PostingController {
 
     private final PostingServiceImpl postingService;
-
-    @Secured({"ROLE_USER", "ROLE_ADMIN", "ROLE_MANAGER"})
+        
+    //TODO : 나중에 anonymous 없어야 함
+    //@Secured({"ROLE_USER", "ROLE_ADMIN", "ROLE_MANAGER"})
+    @Secured({"ROLE_USER", "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_ANONYMOUS"})
     @PostMapping("/free")
     public ResponseEntity<?> createFreePosting(@RequestBody PostingRequest postingRequest) {
         Posting posting = postingService.createPosting(postingRequest, PostingType.FREE);
-        return ResponseEntity.ok(PostingResponse.fromEntity(posting));
+        return ResponseEntity.ok(
+                PostingDetailResponse.from(PostingResponse.fromEntity(posting),
+                        null,
+                        null)
+        );
     }
 
-    @Secured({"ROLE_USER", "ROLE_ADMIN", "ROLE_MANAGER"})
+    //@Secured({"ROLE_USER", "ROLE_ADMIN", "ROLE_MANAGER"})
+    @Secured({"ROLE_USER", "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_ANONYMOUS"})
     @PostMapping("/tip")
     public ResponseEntity<?> createTipPosting(@RequestBody PostingRequest postingRequest) {
         Posting posting = postingService.createPosting(postingRequest, PostingType.TIP);
-        return ResponseEntity.ok(PostingResponse.fromEntity(posting));
+        return ResponseEntity.ok(
+                PostingDetailResponse.from(PostingResponse.fromEntity(posting),
+                        null,
+                        null)
+        );
     }
 
-    @Secured({"ROLE_USER", "ROLE_ADMIN", "ROLE_MANAGER"})
+    //@Secured({"ROLE_USER", "ROLE_ADMIN", "ROLE_MANAGER"})
+    @Secured({"ROLE_USER", "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_ANONYMOUS"})
     @PostMapping("/matching")
     public ResponseEntity<?> createMatchingPosting(@RequestBody MatchingTournamentPostingRequest matchingTournamentPostingRequest) {
-        postingService.createMatchingTournamentPosting(matchingTournamentPostingRequest, PostingType.MATCHING);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(
+                postingService.createMatchingTournamentPosting(matchingTournamentPostingRequest, PostingType.MATCHING));
     }
 
-    @Secured({"ROLE_ADMIN", "ROLE_MANAGER"})
+    //@Secured({"ROLE_ADMIN", "ROLE_MANAGER"})
+    @Secured({"ROLE_USER", "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_ANONYMOUS"})
     @PostMapping("/tournament")
     public ResponseEntity<?> createTournamentPosting(@RequestBody MatchingTournamentPostingRequest matchingTournamentPostingRequest) {
-        postingService.createMatchingTournamentPosting(matchingTournamentPostingRequest, PostingType.TOURNAMENT);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(
+                postingService.createMatchingTournamentPosting(matchingTournamentPostingRequest, PostingType.TOURNAMENT));
     }
 
     //TODO : promotion 내일 회의 해야 함
@@ -66,6 +80,21 @@ public class PostingController {
         );
     }
 
+    @GetMapping("/matching")
+    public ResponseEntity<?> getMatchingPosting() {
+        return ResponseEntity.ok(
+                postingService.getPosting(PostingType.MATCHING)
+        );
+    }
+
+    @GetMapping("/tournament")
+    public ResponseEntity<?> getTournamentPosting() {
+        return ResponseEntity.ok(
+                postingService.getPosting(PostingType.TOURNAMENT)
+        );
+    }
+
+    //GET promotion
 
 
     //PUT

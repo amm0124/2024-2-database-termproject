@@ -1,7 +1,11 @@
 package database.termproject.domain.posting.service;
 
 import database.termproject.domain.member.entity.Member;
+import database.termproject.domain.posting._comment.dto.response.PostingCommentResponse;
+import database.termproject.domain.posting._comment.service.CommentService;
 import database.termproject.domain.posting.dto.request.MatchingTournamentPostingRequest;
+import database.termproject.domain.posting.dto.response.MatchingResponse;
+import database.termproject.domain.posting.dto.response.PostingDetailResponse;
 import database.termproject.domain.posting.dto.response.PostingResponse;
 import database.termproject.domain.posting.entity.Matching;
 import database.termproject.domain.posting.entity.Posting;
@@ -18,6 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static database.termproject.global.error.ProjectError.POSTING_NOT_FOUND;
@@ -28,7 +33,8 @@ import static database.termproject.global.error.ProjectError.POSTING_NOT_FOUND;
 public class PostingServiceImpl {
 
     private final PostingJPARepository postingJPARepository;
-    private final MatchingRepository matchingRepository;
+    private final CommentService commentService;
+    private final MatchingService matchingService;
 
     //free, tip
     public Posting createPosting(PostingRequest postingRequest, PostingType postingType) {
@@ -46,36 +52,52 @@ public class PostingServiceImpl {
                 .content(content)
                 .postingType(postingType)
                 .build();
+
         postingJPARepository.save(posting);
+        System.out.println("포스팅완료`~~");
         return posting;
     }
 
     //matching, 대회
-    public void createMatchingTournamentPosting(MatchingTournamentPostingRequest matchingTournamentPostingRequest, PostingType postingType){
+    public PostingDetailResponse createMatchingTournamentPosting(MatchingTournamentPostingRequest matchingTournamentPostingRequest, PostingType postingType){
         PostingRequest postingRequest = new PostingRequest(
                 matchingTournamentPostingRequest.title(),
                 matchingTournamentPostingRequest.game(),
                 matchingTournamentPostingRequest.content()
         );
-        Posting posting = createPosting(postingRequest, postingType);
 
-        Matching matching = Matching.builder()
-                .posting(posting)
-                .when(matchingTournamentPostingRequest.when())
-                .place(matchingTournamentPostingRequest.place())
-                .limit(matchingTournamentPostingRequest.limit())
-                .build();
-        matchingRepository.save(matching);
+        Posting posting = createPosting(postingRequest, postingType);
+        Matching matching = matchingService.save(posting, matchingTournamentPostingRequest);
+
+        return PostingDetailResponse.from(PostingResponse.fromEntity(posting),
+                null,
+                MatchingResponse.fromEntity(matching));
     }
 
-
-    //GET
-    public List<PostingResponse> getPosting(PostingType postingType){
-        List<Posting> postingList =  postingJPARepository.findByPostingType(postingType);
+    //Type별로 전체 postingdetailresponse 가져 옴
+    public List<PostingDetailResponse> getPosting(PostingType postingType){
+        List<Posting> postingList = postingJPARepository.findByPostingType(postingType);
         return postingList.stream()
-                .map(PostingResponse::fromEntity)
-                .collect(Collectors.toList())
-                ;
+                .map(posting -> {
+                    Long postingId = posting.getId();
+                    return getPostingDetailResponse(postingId);
+                })
+                .toList();
+    }
+
+    //1개 Posting과 모든 comment와 matching
+    public PostingDetailResponse getPostingDetailResponse(Long postingId){
+        Posting posting = getPostingByPostingId(postingId);
+
+        PostingResponse postingResponse = PostingResponse.fromEntity(posting);
+        List<PostingCommentResponse> postingCommentResponseList = commentService.getCommentResponse(postingId);
+        Optional<Matching> matching = matchingService.findByPostingId(postingId);
+        MatchingResponse matchingResponse = null;
+        if(matching.isPresent()){
+            matchingResponse = MatchingResponse.fromEntity(matching.get());
+        }
+
+        return PostingDetailResponse.from(postingResponse, postingCommentResponseList, matchingResponse);
     }
 
 

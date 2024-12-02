@@ -5,10 +5,11 @@ import database.termproject.domain.member.entity.Member;
 import database.termproject.domain.posting._comment.CommentRepository;
 import database.termproject.domain.posting._comment.dto.request.CommentReplyRequest;
 import database.termproject.domain.posting._comment.dto.request.CommentRequest;
-import database.termproject.domain.posting._comment.dto.response.CommentResponse;
+import database.termproject.domain.posting._comment.dto.response.PostingCommentResponse;
 import database.termproject.domain.posting._comment.entity.Comment;
 import database.termproject.domain.posting.entity.Posting;
-import database.termproject.domain.posting.service.PostingService;
+import database.termproject.domain.posting.repository.PostingJPARepository;
+import database.termproject.domain.posting.repository.PostingRepository;
 import database.termproject.domain.posting.service.PostingServiceImpl;
 import database.termproject.global.error.ProjectException;
 import database.termproject.global.security.UserDetailsImpl;
@@ -19,14 +20,20 @@ import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static database.termproject.global.error.ProjectError.COMMENT_NOT_FOUND;
+import static database.termproject.global.error.ProjectError.POSTING_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
 public class CommentService {
 
     private final CommentRepository commentRepository;
-    private final PostingServiceImpl postingService;
+    private final PostingJPARepository postingRepository;
 
     @Transactional
     public void createComment(CommentRequest commentRequest) {
@@ -43,7 +50,8 @@ public class CommentService {
             parentComment = getCommentByCommentId(parentCommentId);
         }
 
-        Posting posting = postingService.getPostingByPostingId(postingId);
+        Posting posting = postingRepository.findById(postingId)
+                .orElseThrow(() -> new ProjectException(POSTING_NOT_FOUND));
 
         //자식 댓글 추가
         Comment comment = Comment.builder()
@@ -53,9 +61,10 @@ public class CommentService {
                 .parentComment(parentComment)
                 .build();
 
+        comment.setCommentDepth();
+
         commentRepository.save(comment);
-        //부모 comment가 있으면
-        //부모에도 등록을 해줘야 한다
+
         if(parentComment != null) {
             parentComment.addReplies(comment);
             commentRepository.save(parentComment);
@@ -68,19 +77,26 @@ public class CommentService {
     }
 
 
-    /*public CommentResponse commentReply(CommentReplyRequest commentReplyRequest) {
+    public List<PostingCommentResponse> getCommentResponse(Long postingId) {
+        List<PostingCommentResponse> postingCommentResponseList = new ArrayList<>();
+        List<Comment> commentList = commentRepository.findByPostingId(postingId);
+        Map<Long, PostingCommentResponse> postingCommentResponseMap = new HashMap<>();
 
-        Long postId = commentReplyRequest.postId();
-        String content = commentReplyRequest.content();
-        Long parentCommentId = commentReplyRequest.parentCommentId();
-
-        Member member = getMember();
-
-        //TODO : ~
-
-
-    }*/
-
+        for (Comment comment : commentList) {
+            if (comment.getDepth() == 1) {
+                PostingCommentResponse postingCommentResponse = PostingCommentResponse.fromEntity(comment);
+                postingCommentResponseList.add(postingCommentResponse);
+                postingCommentResponseMap.put(comment.getId(), postingCommentResponse);
+            } else {
+                Long parentCommentId = comment.getParentComment().getId();
+                PostingCommentResponse parentCommentResponse = postingCommentResponseMap.get(parentCommentId);
+                parentCommentResponse.addPostingCommentResponse(
+                        PostingCommentResponse.fromEntity(comment)
+                );
+            }
+        }
+        return postingCommentResponseList;
+    }
 
     private Member getMember(){
         Authentication authentication = SecurityContextHolder

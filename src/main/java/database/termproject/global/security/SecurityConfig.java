@@ -89,7 +89,8 @@ public class SecurityConfig {
                         "/api/v1/member/signup",
                         "api/login",
                         "/h2-console/**").permitAll() //.hasRole("ROLE_ADMIN")
-                .requestMatchers("/api/v1/posting/**", "/api/v1/comment/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/v1/posting/**", "/api/v1/comment/**").authenticated()
+                .anyRequest().permitAll()
         );
 
 

@@ -2,10 +2,7 @@ package database.termproject.domain.posting.entity;
 
 
 import database.termproject.global.entity.BaseEntity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,6 +15,7 @@ import lombok.NoArgsConstructor;
 public class Matching extends BaseEntity {
 
     @OneToOne
+    @JoinColumn(name = "posting_id")
     private Posting posting;
 
     private String when;
