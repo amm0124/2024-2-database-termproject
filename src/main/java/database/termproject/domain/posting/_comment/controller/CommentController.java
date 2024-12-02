@@ -18,12 +18,13 @@ public class CommentController {
 
     private final CommentService commentService;
 
-    @Secured({"ROLE_USER", "ROLE_ANONYMOUS"})
+    @Secured({"ROLE_USER", "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_ANONYMOUS"})
     @PostMapping
     public ResponseEntity<?> createComment(@RequestBody CommentRequest commentRequest) {
-        log.info("comment controller");
         commentService.createComment(commentRequest);
         return ResponseEntity.ok().build();
     }
+
+    //TODO : PUT, DELETE (논리적 삭제)
 
 }
