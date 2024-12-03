@@ -5,6 +5,7 @@ import database.termproject.domain.verifyemail.repository.EmailRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -14,7 +15,8 @@ public class EmailVerificationCleanupService {
 
     private final EmailRepository emailVerificationRepository;
 
-    @Scheduled(cron = "0 * * * * *") // 매 정각에 실행 (1시간마다)
+    @Transactional
+    @Scheduled(cron = "0 0 * * * *")
     public void deleteExpiredEmailVerifications() {
         emailVerificationRepository.deleteAllByExpiredAtBefore(LocalDateTime.now());
     }
