@@ -4,6 +4,7 @@ import database.termproject.domain.member.entity.Member;
 import database.termproject.domain.posting._comment.dto.response.PostingCommentResponse;
 import database.termproject.domain.posting._comment.service.CommentService;
 import database.termproject.domain.posting.dto.request.MatchingTournamentPostingRequest;
+import database.termproject.domain.posting.dto.request.PostingDeleteRequest;
 import database.termproject.domain.posting.dto.response.MatchingResponse;
 import database.termproject.domain.posting.dto.response.PostingDetailResponse;
 import database.termproject.domain.posting.dto.response.PostingResponse;
@@ -20,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -100,6 +102,12 @@ public class PostingServiceImpl {
         return PostingDetailResponse.from(postingResponse, postingCommentResponseList, matchingResponse);
     }
 
+    @Transactional
+    public void deletePosting(PostingDeleteRequest postingDeleteRequest){
+        Long postingId = postingDeleteRequest.postingId();
+        Posting posting = getPostingByPostingId(postingId);
+        posting.softDelete();
+    }
 
     public Posting getPostingByPostingId(Long postingId) {
         return postingJPARepository.findById(postingId)
