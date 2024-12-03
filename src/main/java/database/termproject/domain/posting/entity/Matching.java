@@ -18,21 +18,21 @@ public class Matching extends BaseEntity {
     @JoinColumn(name = "posting_id")
     private Posting posting;
 
-    private String when;
+    private String eventTime;
 
     private String place;
 
     private Integer now;
 
-    private Integer limit;
+    private Integer capacity;
 
     @Builder
-    public Matching(Posting posting, String when, String place, Integer limit) {
+    public Matching(Posting posting, String eventTime, String place, Integer capacity) {
         this.posting = posting;
-        this.when = when;
+        this.eventTime = eventTime;
         this.place = place;
         this.now = 1;
-        this.limit = limit;
+        this.capacity = capacity;
     }
 
 }

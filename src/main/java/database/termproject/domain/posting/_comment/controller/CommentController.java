@@ -25,6 +25,5 @@ public class CommentController {
         return ResponseEntity.ok().build();
     }
 
-    //TODO : PUT, DELETE (논리적 삭제)
 
 }

@@ -39,7 +39,7 @@ public class PostingCommentResponse {
                 .commentId(comment.getId())
                 .postingId(comment.getPosting().getId())
                 .memberId(comment.getMember().getId())
-                .parentCommentId(comment.getParentComment().getId())
+                .parentCommentId(comment.getParentComment() != null ? comment.getParentComment().getId() : null)
                 .commentContent(comment.getContent())
                 .isDeleted(comment.isDeleted())
                 .build();
