@@ -27,10 +27,13 @@ public class Member extends BaseEntity {
     private String password;
 
     @OneToOne
+    @JoinColumn(name = "member_profile_id")
     private MemberProfile memberProfile;
 
     @Column(nullable = false)
     private boolean isDeleted = false;
+
+    private boolean isVerify = false;
 
     public void deleteMember(){
         this.isDeleted = true;
@@ -42,5 +45,25 @@ public class Member extends BaseEntity {
         this.email = email;
         this.password = password;
     }
+
+    public boolean isVerifyMember(){
+        if(this.isVerify == true) return true;
+        return false;
+    }
+
+    public void setMemberProfile(MemberProfile memberProfile){
+        this.memberProfile = memberProfile;
+    }
+
+    public Member editMemberInfo(String password){
+
+
+        if(password!=null){
+            this.password = password;
+        }
+        return this; // 변경된 Member 객체 반환
+
+    }
+
 
 }
