@@ -6,6 +6,7 @@ import database.termproject.domain.member.dto.request.MemberEmailVerifyRequest;
 import database.termproject.domain.member.dto.request.MemberSignUpRequestDto;
 import database.termproject.domain.member.dto.response.MemberResponse;
 import database.termproject.domain.member.service.MemberService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/member")
+@Tag(name = "Response Estimate", description = "Response Estimate API")
 public class MemberController {
 
     private final MemberService memberService;
@@ -41,7 +43,7 @@ public class MemberController {
     @PostMapping("/email-code-verify")
     @Secured({"ROLE_ANONYMOUS"})
     public ResponseEntity<?> verifyByEmail(@RequestBody MemberEmailVerifyRequest memberEmailVerifyRequest){
-
+        memberService.verifyAuthCode(memberEmailVerifyRequest);
         return ResponseEntity.ok().build();
     }
 
