@@ -24,4 +24,11 @@ public abstract class BaseEntity {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    protected boolean isDeleted = false; // 하위 클래스에서 직접 접근 가능
+
+    public void softDelete(){
+        this.isDeleted = true;
+    }
+
 }
