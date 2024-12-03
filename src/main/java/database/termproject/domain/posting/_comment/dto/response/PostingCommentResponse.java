@@ -22,7 +22,7 @@ public class PostingCommentResponse {
 
     private Boolean isDeleted;
 
-    private List<PostingCommentResponse> commentResponseList = new ArrayList<>();
+    private List<PostingCommentResponse> replyList = new ArrayList<>();
 
     @Builder
     public PostingCommentResponse(Long commentId, Long postingId, Long memberId, Long parentCommentId, String commentContent, Boolean isDeleted) {
@@ -46,6 +46,6 @@ public class PostingCommentResponse {
     }
 
     public void addPostingCommentResponse(PostingCommentResponse postingCommentResponse) {
-        this.commentResponseList.add(postingCommentResponse);
+        this.replyList.add(postingCommentResponse);
     }
 }
