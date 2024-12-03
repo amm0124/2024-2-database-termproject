@@ -109,8 +109,6 @@ public class MemberService {
         return MemberResponse.from(member);
     }
 
-
-
     @Transactional
     public void generateAuthCode(){
         Member member = getMember();
@@ -139,7 +137,6 @@ public class MemberService {
     @Transactional
     public void verifyAuthCode(MemberEmailVerifyRequest memberEmailVerifyRequest){
 
-
         Member member = memberRepository.findByIdWithProfile(getMember().getId())
                 .orElseThrow(() -> new ProjectException(MEMBER_NOT_FOUND));
 
@@ -156,20 +153,12 @@ public class MemberService {
 
         emailService.removeEmailVerification(emailVerification);
         member.convertRoleUser();
-
-
-
-        //아니라면 memberProfile 삭제 후
-
     }
-
-
 
     public Member getMemberById(Long id) {
         return memberRepository.findById(id)
                 .orElseThrow(() -> new ProjectException(MEMBER_NOT_FOUND));
     }
-
 
     private String createCode() {
         int lenth = 6;
@@ -185,7 +174,6 @@ public class MemberService {
             throw new ProjectException(MAIL_CODE_GENERATING_EXCEPTION);
         }
     }
-
 
     private Member getMember(){
         Authentication authentication = SecurityContextHolder
