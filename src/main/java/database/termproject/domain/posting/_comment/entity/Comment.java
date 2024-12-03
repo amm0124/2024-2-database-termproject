@@ -50,6 +50,7 @@ public class Comment extends BaseEntity {
         this.content = content;
         this.parentComment = parentComment;
         this.isDeleted = false;
+        this.setCommentDepth();
     }
 
     public void addParentComment(Comment parentComment){
@@ -68,6 +69,10 @@ public class Comment extends BaseEntity {
         }else{
             this.depth = this.parentComment.getDepth()+1;
         }
+    }
+
+    public Long getPostingId(){
+        return this.posting.getId();
     }
 
     public Long getParentCommentId(){

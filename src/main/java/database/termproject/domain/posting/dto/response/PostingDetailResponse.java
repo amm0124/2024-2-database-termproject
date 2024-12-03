@@ -6,16 +6,16 @@ import java.util.List;
 
 public record PostingDetailResponse(
         PostingResponse postingResponse,
-        List<PostingCommentResponse> postingCommentResponseList,
+        List<PostingCommentResponse> CommentResponseList,
         MatchingResponse matchingResponse
 ) {
 
     public static PostingDetailResponse from(PostingResponse postingResponse,
-                                              List<PostingCommentResponse> postingCommentResponseList,
+                                              List<PostingCommentResponse> CommentResponseList,
                                               MatchingResponse matchingResponse) {
         return new PostingDetailResponse(
                 postingResponse,
-                postingCommentResponseList,
+                CommentResponseList,
                 matchingResponse
         );
     }

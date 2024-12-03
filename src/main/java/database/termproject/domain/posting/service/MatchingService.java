@@ -23,9 +23,9 @@ public class MatchingService {
 
         Matching matching = Matching.builder()
                 .posting(posting)
-                .when(matchingTournamentPostingRequest.when())
+                .eventTime(matchingTournamentPostingRequest.when())
                 .place(matchingTournamentPostingRequest.place())
-                .limit(matchingTournamentPostingRequest.limit())
+                .capacity(matchingTournamentPostingRequest.limit())
                 .build();
 
         matchingRepository.save(matching);
@@ -33,7 +33,7 @@ public class MatchingService {
     }
 
     public Optional<Matching> findByPostingId(Long postingId){
-        Optional<Matching> matching = matchingRepository.findById(postingId);
+        Optional<Matching> matching = matchingRepository.findByPostingId(postingId);
         return matching;
     }
 
