@@ -24,16 +24,56 @@ spring:
     defer-datasource-initialization: true
     generate-ddl: true
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: --
+    password: --
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+    auth-code-expiration-millis: 50000
+
+
+
 jwt :
   secret : termprojecttermprojecttermprojecttermproject
   access-token-expiration-time : 8640000
 
+
+
 logging:
   level:
     org:
-      security : TRACE
-      hibernate:
-        type:
-          descriptor:
-            sql:
-              BasicBinder: TRACE
+      springframework :
+        web: TRACE
+        security : TRACE
+        hibernate:
+          type:
+            descriptor:
+              sql:
+                BasicBinder: TRACE
+
+
+springdoc:
+  swagger-ui:
+    path: /swagger-custom-ui.html
+
+  api-docs:
+    path: /api-docs
+
+  default-consumes-media-type: application/json
+
+  default-produces-media-type: application/json
+
+  paths-to-match:
+    - /api/**
+
+  show-login-endpoint: true

@@ -10,6 +10,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 import static database.termproject.domain.member.entity.Role.ROLE_ANONYMOUS;
+import static database.termproject.domain.member.entity.Role.ROLE_USER;
 
 @Entity
 @Table
@@ -56,13 +57,15 @@ public class Member extends BaseEntity {
     }
 
     public Member editMemberInfo(String password){
-
-
         if(password!=null){
             this.password = password;
         }
         return this; // 변경된 Member 객체 반환
+    }
 
+    public void convertRoleUser(){
+        this.isVerify = true;
+        this.role = ROLE_USER;
     }
 
 
