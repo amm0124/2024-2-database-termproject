@@ -21,7 +21,14 @@ public class CommentController {
     @Secured({"ROLE_USER", "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_ANONYMOUS"})
     @PostMapping
     public ResponseEntity<?> createComment(@RequestBody CommentRequest commentRequest) {
-        commentService.createComment(commentRequest);
+        commentService.addComment(commentRequest);
+        return ResponseEntity.ok().build();
+    }
+
+    @Secured({"ROLE_USER", "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_ANONYMOUS"})
+    @PostMapping("/reply")
+    public ResponseEntity<?> createReply(@RequestBody CommentReplyRequest commentReplyRequest) {
+        commentService.addReplyComment(commentReplyRequest);
         return ResponseEntity.ok().build();
     }
 
