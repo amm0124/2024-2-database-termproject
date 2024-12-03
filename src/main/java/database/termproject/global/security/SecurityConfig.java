@@ -4,6 +4,7 @@ import database.termproject.domain.member.service.MemberService;
 import database.termproject.global.security.filter.CustomUsernamePasswordAuthenticationFilter;
 import database.termproject.global.security.filter.JwtAuthenticationFilter;
 import database.termproject.global.util.JwtUtil;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -43,6 +44,19 @@ public class SecurityConfig {
                 .requestMatchers("/error", "/favicon.ico");
     }
 
+    @NoArgsConstructor
+    public class AuthenticatedMatchers {
+        public static final String[] swaggerArray = {
+                "/api-docs",
+                "/swagger-ui-custom.html",
+                "/v3/api-docs/**",
+                "/swagger-ui/**",
+                "/api-docs/**",
+                "/swagger-ui.html",
+                "/swagger-custom-ui.html"
+        };
+    }
+
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -80,15 +94,17 @@ public class SecurityConfig {
         http.logout(AbstractHttpConfigurer::disable);
 
         //세션 stateless
-        http.sessionManagement(AbstractHttpConfigurer::disable);
+        //http.sessionManagement(AbstractHttpConfigurer::disable);
 
 
         // 인증 필요한 경로
         http.authorizeHttpRequests((authorize) -> authorize
-                .requestMatchers("/api/v1/member/signup", "api/login", "/h2-console/**").permitAll() //.hasRole("ROLE_ADMIN")
+                .requestMatchers("/api/v1/member/signup", "api/login").permitAll() //.hasRole("ROLE_ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/v1/member").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/v1/posting/**", "/api/v1/comment/**").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/v1/posting/**").permitAll()
+                .requestMatchers(AuthenticatedMatchers.swaggerArray).permitAll()
+                .requestMatchers("/h2-console/**").permitAll()
                 .anyRequest().permitAll()
         );
 
