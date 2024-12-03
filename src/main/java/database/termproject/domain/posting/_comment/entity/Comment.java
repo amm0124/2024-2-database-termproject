@@ -34,7 +34,6 @@ public class Comment extends BaseEntity {
 
     private int depth = 1;
 
-    private boolean isDeleted;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_comment_id")

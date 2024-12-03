@@ -17,7 +17,7 @@ import static database.termproject.domain.member.entity.Role.ROLE_USER;
 @Getter
 @SQLRestriction("is_deleted = false")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE artist SET is_deleted = true where id = ?")
+@SQLDelete(sql = "UPDATE member SET is_deleted = true where id = ?")
 public class Member extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
@@ -30,9 +30,6 @@ public class Member extends BaseEntity {
     @OneToOne
     @JoinColumn(name = "member_profile_id")
     private MemberProfile memberProfile;
-
-    @Column(nullable = false)
-    private boolean isDeleted = false;
 
     private boolean isVerify = false;
 
