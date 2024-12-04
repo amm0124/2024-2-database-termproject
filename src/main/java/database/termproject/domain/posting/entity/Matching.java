@@ -10,6 +10,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import static database.termproject.global.error.ProjectError.MATCHING_CAPACITY_EXCEEDED;
+
 @Table
 @Entity
 @Getter
@@ -35,7 +37,7 @@ public class Matching extends BaseEntity {
         this.posting = posting;
         this.eventTime = eventTime;
         this.place = place;
-        this.now = 1;
+        this.now = 0;
         this.capacity = capacity;
     }
 
@@ -63,5 +65,11 @@ public class Matching extends BaseEntity {
         return this;
     }
 
+    public void subtractCount(Integer count){
+        if (this.now + count > capacity) {
+            throw new ProjectException(MATCHING_CAPACITY_EXCEEDED);
+        }
+        this.now = this.now + count;
+    }
 
 }

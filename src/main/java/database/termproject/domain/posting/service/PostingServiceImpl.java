@@ -2,6 +2,9 @@ package database.termproject.domain.posting.service;
 
 import com.fasterxml.jackson.databind.deser.DataFormatReaders;
 import database.termproject.domain.facilities.service.FacilitiesService;
+import database.termproject.domain.matchingjoin.dto.request.MatchingJoinRequest;
+import database.termproject.domain.matchingjoin.dto.response.MatchingJoinResponse;
+import database.termproject.domain.matchingjoin.service.MatchingJoinService;
 import database.termproject.domain.member.entity.Member;
 import database.termproject.domain.posting._comment.dto.response.PostingCommentResponse;
 import database.termproject.domain.posting._comment.service.CommentService;
@@ -37,6 +40,7 @@ public class PostingServiceImpl {
     private final CommentService commentService;
     private final MatchingService matchingService;
     private final FacilitiesService facilitiesService;
+    private final MatchingJoinService matchingJoinService;
 
     //free, tip
     public Posting createPosting(PostingRequest postingRequest, PostingType postingType) {
@@ -61,6 +65,7 @@ public class PostingServiceImpl {
     }
 
     //matching, 대회
+    @Transactional
     public PostingDetailResponse createMatchingPosting(MatchingTournamentPostingRequest matchingTournamentPostingRequest, PostingType postingType){
         PostingRequest postingRequest = new PostingRequest(
                 matchingTournamentPostingRequest.title(),
@@ -68,21 +73,29 @@ public class PostingServiceImpl {
                 matchingTournamentPostingRequest.content()
         );
 
+        Posting posting = createPosting(postingRequest, postingType);
+        
         String place = matchingTournamentPostingRequest.place();
-        if(place == null){
+        if(place == null){ 
             place = facilitiesService.getFacilities().storeName();
         }
+        //else : 즉 대회가 아니면 자기 자신 참여해야 함
 
-        Posting posting = createPosting(postingRequest, postingType);
         Matching matching = matchingService.save(posting,
                 matchingTournamentPostingRequest.when(),
                 place,
                 matchingTournamentPostingRequest.limit()
         );
 
+        if(postingType == PostingType.MATCHING){
+            matchingJoinService.matchingJoin(new MatchingJoinRequest(matching.getId(), 1));
+        }
+
+        List<MatchingJoinResponse> matchingJoinList = matchingJoinService.getMatchingJoins(matching.getId());
+
         return PostingDetailResponse.from(PostingResponse.fromEntity(posting),
                 null,
-                MatchingResponse.fromEntity(matching));
+                MatchingResponse.fromEntity(matching, matchingJoinList));
     }
 
     //Type별로 전체 postingdetailresponse 가져 옴
@@ -105,7 +118,8 @@ public class PostingServiceImpl {
         Optional<Matching> matching = matchingService.findByPostingId(postingId);
         MatchingResponse matchingResponse = null;
         if(matching.isPresent()){
-            matchingResponse = MatchingResponse.fromEntity(matching.get());
+            List<MatchingJoinResponse> matchingJoinList = matchingJoinService.getMatchingJoins(matching.get().getId());
+            matchingResponse = MatchingResponse.fromEntity(matching.get(), matchingJoinList);
         }
 
         return PostingDetailResponse.from(postingResponse, postingCommentResponseList, matchingResponse);
@@ -138,7 +152,9 @@ public class PostingServiceImpl {
     @Transactional
     public MatchingResponse updateMatching(MatchingEditRequest matchingEditRequest){
         Matching matching = matchingService.update(matchingEditRequest);
-        return MatchingResponse.fromEntity(matching);
+        Long matchingId = matching.getId();
+        List<MatchingJoinResponse> matchingJoinList = matchingJoinService.getMatchingJoins(matching.getId());
+        return MatchingResponse.fromEntity(matching, matchingJoinList);
     }
 
 
