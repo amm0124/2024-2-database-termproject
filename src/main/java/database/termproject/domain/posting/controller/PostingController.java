@@ -1,9 +1,6 @@
 package database.termproject.domain.posting.controller;
 
-import database.termproject.domain.posting.dto.request.MatchingTournamentPostingRequest;
-import database.termproject.domain.posting.dto.request.PostingDeleteRequest;
-import database.termproject.domain.posting.dto.request.PostingRequest;
-import database.termproject.domain.posting.dto.request.UpdatePostingRequest;
+import database.termproject.domain.posting.dto.request.*;
 import database.termproject.domain.posting.dto.response.PostingDetailResponse;
 import database.termproject.domain.posting.dto.response.PostingResponse;
 import database.termproject.domain.posting.entity.Posting;
@@ -53,7 +50,7 @@ public class PostingController {
     @PostMapping("/matching")
     public ResponseEntity<?> createMatchingPosting(@RequestBody MatchingTournamentPostingRequest matchingTournamentPostingRequest) {
         return ResponseEntity.ok(
-                postingService.createMatchingTournamentPosting(matchingTournamentPostingRequest, PostingType.MATCHING));
+                postingService.createMatchingPosting(matchingTournamentPostingRequest, PostingType.MATCHING));
     }
 
     //@Secured({"ROLE_ADMIN", "ROLE_MANAGER"})
@@ -61,7 +58,7 @@ public class PostingController {
     @PostMapping("/tournament")
     public ResponseEntity<?> createTournamentPosting(@RequestBody MatchingTournamentPostingRequest matchingTournamentPostingRequest) {
         return ResponseEntity.ok(
-                postingService.createMatchingTournamentPosting(matchingTournamentPostingRequest, PostingType.TOURNAMENT));
+                postingService.createMatchingPosting(matchingTournamentPostingRequest, PostingType.TOURNAMENT));
     }
 
     //TODO : promotion 내일 회의 해야 함
@@ -98,22 +95,24 @@ public class PostingController {
 
 
     //DELETE
-    @DeleteMapping()
+    @DeleteMapping
     public ResponseEntity<?> deletePosting(@RequestBody PostingDeleteRequest postingDeleteRequest) {
         postingService.deletePosting(postingDeleteRequest);
         return ResponseEntity.noContent().build();
     }
 
     //PUT
-    @PutMapping()
+    @PutMapping
     public ResponseEntity<?> updatePosting(@RequestBody UpdatePostingRequest updatePostingRequest) {
         return ResponseEntity.ok(
                 postingService.updatePosting(updatePostingRequest)
         );
     }
 
-
-
+    @PutMapping("/matching")
+    public ResponseEntity<?> updateMatching(@RequestBody MatchingEditRequest matchingEditRequest){
+        return ResponseEntity.ok(postingService.updateMatching(matchingEditRequest));
+    }
 
 
 

@@ -25,13 +25,18 @@ public enum ProjectError {
 
     //Matching
     MATCHING_NOT_FOUND(HttpStatus.NOT_FOUND, "찾을 수 없는 매칭입니다."),
-    
+    MATCHING_UPDATE_BAD_REQUEST(HttpStatus.BAD_REQUEST, "현재 참여한 사람보다 바꾸려는 인원이 많습니다"),
     
     //Mail
     MAIL_EXCEPTION(HttpStatus.BAD_GATEWAY, "메일 처리 도중 예외 발생"),
     MAIL_CODE_GENERATING_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "인증 코드 생성 중 오류 발생"),
     CODE_VALIDATION_EXCEPTION(HttpStatus.BAD_REQUEST, "인증 코드가 잘못되었습니다"),
-    CODE_EXPIRED_EXCEPTION(HttpStatus.BAD_REQUEST, "코드가 만료되었습니다")
+    CODE_EXPIRED_EXCEPTION(HttpStatus.BAD_REQUEST, "코드가 만료되었습니다"),
+
+    //facilities
+    FACILITIES_NOT_FOUND(HttpStatus.NOT_FOUND, "등록된 게임 시설이 없습니다")
+
+
     ;
 
 
