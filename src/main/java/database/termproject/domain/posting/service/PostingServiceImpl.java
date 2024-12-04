@@ -81,14 +81,15 @@ public class PostingServiceImpl {
         }
         //else : 즉 대회가 아니면 자기 자신 참여해야 함
 
-        Matching matching = matchingService.save(posting,
+        Matching matching = matchingService.save(
+                posting,
                 matchingTournamentPostingRequest.when(),
                 place,
                 matchingTournamentPostingRequest.limit()
         );
 
         if(postingType == PostingType.MATCHING){
-            matchingJoinService.matchingJoin(new MatchingJoinRequest(matching.getId(), 1));
+            matchingJoinService.matchingJoin(new MatchingJoinRequest(matching.getId(), null));
         }
 
         List<MatchingJoinResponse> matchingJoinList = matchingJoinService.getMatchingJoins(matching.getId());
