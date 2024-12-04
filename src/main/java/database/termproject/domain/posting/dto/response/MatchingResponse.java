@@ -1,20 +1,26 @@
 package database.termproject.domain.posting.dto.response;
 
+import database.termproject.domain.matchingjoin.dto.response.MatchingJoinResponse;
 import database.termproject.domain.posting.entity.Matching;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public record MatchingResponse(Long matchingId, Long postingId,
                                String eventTime,
                                String place,
                                Integer now,
-                               Integer capacity) {
-    public static MatchingResponse fromEntity(Matching matching){
+                               Integer capacity,
+                               List<MatchingJoinResponse> matchingJoinResponseList) {
+    public static MatchingResponse fromEntity(Matching matching, List<MatchingJoinResponse> matchingJoinList){
         return new MatchingResponse(
                 matching.getId(),
                 matching.getPosting().getId(),
                 matching.getEventTime(),
                 matching.getPlace(),
                 matching.getNow(),
-                matching.getCapacity()
+                matching.getCapacity(),
+                matchingJoinList
         );
     }
 }
