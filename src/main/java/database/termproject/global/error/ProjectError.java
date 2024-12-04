@@ -31,7 +31,12 @@ public enum ProjectError {
     MAIL_EXCEPTION(HttpStatus.BAD_GATEWAY, "메일 처리 도중 예외 발생"),
     MAIL_CODE_GENERATING_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "인증 코드 생성 중 오류 발생"),
     CODE_VALIDATION_EXCEPTION(HttpStatus.BAD_REQUEST, "인증 코드가 잘못되었습니다"),
-    CODE_EXPIRED_EXCEPTION(HttpStatus.BAD_REQUEST, "코드가 만료되었습니다")
+    CODE_EXPIRED_EXCEPTION(HttpStatus.BAD_REQUEST, "코드가 만료되었습니다"),
+
+    //facilities
+    FACILITIES_NOT_FOUND(HttpStatus.NOT_FOUND, "등록된 게임 시설이 없습니다")
+
+
     ;
 
 
