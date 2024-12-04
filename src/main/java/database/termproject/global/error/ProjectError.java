@@ -16,10 +16,12 @@ public enum ProjectError {
 
     //Posting
     POSTING_NOT_FOUND(HttpStatus.NOT_FOUND, "찾을 수 없는 글입니다."),
+    POSTING_DELETE_REQUEST_MISMATCHING(HttpStatus.CONFLICT, "자신의 글이 아닙니다"),
 
 
     //Comment
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "찾을 수 없는 댓글입니다."),
+    COMMENT_REQUEST_MISMATCHING(HttpStatus.CONFLICT, "자신의 댓글이 아닙니다"),
 
     //Matching
     MATCHING_NOT_FOUND(HttpStatus.NOT_FOUND, "찾을 수 없는 매칭입니다."),
