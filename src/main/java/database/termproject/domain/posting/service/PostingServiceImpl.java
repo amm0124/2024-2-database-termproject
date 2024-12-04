@@ -1,25 +1,22 @@
 package database.termproject.domain.posting.service;
 
+import com.fasterxml.jackson.databind.deser.DataFormatReaders;
+import database.termproject.domain.facilities.service.FacilitiesService;
 import database.termproject.domain.member.entity.Member;
 import database.termproject.domain.posting._comment.dto.response.PostingCommentResponse;
 import database.termproject.domain.posting._comment.service.CommentService;
-import database.termproject.domain.posting.dto.request.MatchingTournamentPostingRequest;
-import database.termproject.domain.posting.dto.request.PostingDeleteRequest;
-import database.termproject.domain.posting.dto.request.UpdatePostingRequest;
+import database.termproject.domain.posting.dto.request.*;
 import database.termproject.domain.posting.dto.response.MatchingResponse;
 import database.termproject.domain.posting.dto.response.PostingDetailResponse;
 import database.termproject.domain.posting.dto.response.PostingResponse;
 import database.termproject.domain.posting.entity.Matching;
 import database.termproject.domain.posting.entity.Posting;
-import database.termproject.domain.posting.repository.MatchingRepository;
 import database.termproject.domain.posting.repository.PostingJPARepository;
-import database.termproject.domain.posting.dto.request.PostingRequest;
 import database.termproject.domain.posting.entity.PostingType;
 import database.termproject.global.error.ProjectException;
 import database.termproject.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.sql.Update;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -27,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static database.termproject.global.error.ProjectError.POSTING_DELETE_REQUEST_MISMATCHING;
 import static database.termproject.global.error.ProjectError.POSTING_NOT_FOUND;
@@ -40,6 +36,7 @@ public class PostingServiceImpl {
     private final PostingJPARepository postingJPARepository;
     private final CommentService commentService;
     private final MatchingService matchingService;
+    private final FacilitiesService facilitiesService;
 
     //free, tip
     public Posting createPosting(PostingRequest postingRequest, PostingType postingType) {
@@ -64,15 +61,24 @@ public class PostingServiceImpl {
     }
 
     //matching, 대회
-    public PostingDetailResponse createMatchingTournamentPosting(MatchingTournamentPostingRequest matchingTournamentPostingRequest, PostingType postingType){
+    public PostingDetailResponse createMatchingPosting(MatchingTournamentPostingRequest matchingTournamentPostingRequest, PostingType postingType){
         PostingRequest postingRequest = new PostingRequest(
                 matchingTournamentPostingRequest.title(),
                 matchingTournamentPostingRequest.game(),
                 matchingTournamentPostingRequest.content()
         );
 
+        String place = matchingTournamentPostingRequest.place();
+        if(place == null){
+            place = facilitiesService.getFacilities().storeName();
+        }
+
         Posting posting = createPosting(postingRequest, postingType);
-        Matching matching = matchingService.save(posting, matchingTournamentPostingRequest);
+        Matching matching = matchingService.save(posting,
+                matchingTournamentPostingRequest.when(),
+                place,
+                matchingTournamentPostingRequest.limit()
+        );
 
         return PostingDetailResponse.from(PostingResponse.fromEntity(posting),
                 null,
@@ -128,6 +134,13 @@ public class PostingServiceImpl {
         
         return getPostingDetailResponse(postingId);
     }
+
+    @Transactional
+    public MatchingResponse updateMatching(MatchingEditRequest matchingEditRequest){
+        Matching matching = matchingService.update(matchingEditRequest);
+        return MatchingResponse.fromEntity(matching);
+    }
+
 
     public Posting getPostingByPostingId(Long postingId) {
         return postingJPARepository.findById(postingId)

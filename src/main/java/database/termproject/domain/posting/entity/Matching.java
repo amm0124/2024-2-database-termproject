@@ -2,6 +2,8 @@ package database.termproject.domain.posting.entity;
 
 
 import database.termproject.global.entity.BaseEntity;
+import database.termproject.global.error.ProjectError;
+import database.termproject.global.error.ProjectException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -26,6 +28,8 @@ public class Matching extends BaseEntity {
 
     private Integer capacity;
 
+    private boolean isFull = false;
+
     @Builder
     public Matching(Posting posting, String eventTime, String place, Integer capacity) {
         this.posting = posting;
@@ -34,5 +38,30 @@ public class Matching extends BaseEntity {
         this.now = 1;
         this.capacity = capacity;
     }
+
+    public void setFull(boolean status){
+        this.isFull = status;
+    }
+
+
+    public Matching updateMatching(String eventTime, String place, Integer capacity){
+        if(eventTime != null){
+            this.eventTime = eventTime;
+        }
+
+        if(place != null){
+            this.place = place;
+        }
+
+        if(capacity != null){
+            if(now > capacity){
+                throw new ProjectException(ProjectError.MATCHING_UPDATE_BAD_REQUEST);
+            }
+            this.capacity = capacity;
+        }
+
+        return this;
+    }
+
 
 }

@@ -25,7 +25,7 @@ public enum ProjectError {
 
     //Matching
     MATCHING_NOT_FOUND(HttpStatus.NOT_FOUND, "찾을 수 없는 매칭입니다."),
-    
+    MATCHING_UPDATE_BAD_REQUEST(HttpStatus.BAD_REQUEST, "현재 참여한 사람보다 바꾸려는 인원이 많습니다"),
     
     //Mail
     MAIL_EXCEPTION(HttpStatus.BAD_GATEWAY, "메일 처리 도중 예외 발생"),
