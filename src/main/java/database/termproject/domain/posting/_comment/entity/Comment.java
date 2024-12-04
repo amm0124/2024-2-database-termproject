@@ -17,6 +17,7 @@ import java.util.List;
 @Entity
 @Table
 @Getter
+@SQLRestriction("is_deleted = false")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Comment extends BaseEntity {
 

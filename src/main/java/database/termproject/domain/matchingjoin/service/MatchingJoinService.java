@@ -1,5 +1,6 @@
 package database.termproject.domain.matchingjoin.service;
 
+import database.termproject.domain.matchingjoin.dto.request.EditMatchingJoinRequest;
 import database.termproject.domain.matchingjoin.dto.request.MatchingJoinRequest;
 import database.termproject.domain.matchingjoin.dto.response.MatchingJoinResponse;
 import database.termproject.domain.matchingjoin.entity.MatchingJoin;
@@ -10,7 +11,6 @@ import database.termproject.domain.posting.service.MatchingService;
 import database.termproject.global.error.ProjectError;
 import database.termproject.global.error.ProjectException;
 import database.termproject.global.security.UserDetailsImpl;
-import jdk.jfr.Description;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static database.termproject.domain.posting.entity.PostingType.MATCHING;
-import static database.termproject.global.error.ProjectError.MATCHING_SINGLE_PLAYER_ONLY;
+import static database.termproject.global.error.ProjectError.*;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +31,7 @@ public class MatchingJoinService {
     private final MatchingService matchingService;
 
     @Transactional
-    public List<MatchingJoinResponse> matchingJoin(MatchingJoinRequest matchingJoinRequest) {
+    public List<MatchingJoinResponse> createMatchingJoin(MatchingJoinRequest matchingJoinRequest) {
         Long matchingId = matchingJoinRequest.matchingId();
         Member member = getMember();
 
@@ -53,18 +53,38 @@ public class MatchingJoinService {
                 .count(count)
                 .build();
 
-        matching.subtractCount(count);
+        matching.addNow(count);
         matchingJoinRepository.save(matchingJoin);
 
         return getMatchingJoins(matchingId);
     }
+
+    @Transactional
+    public void cancel(EditMatchingJoinRequest editMatchingJoinRequest){
+        Long matchingJoinId = editMatchingJoinRequest.matchingJoinId();
+        if(editMatchingJoinRequest.count() != null){
+            throw new ProjectException(MATCHING_BAD_REQUEST);
+        }
+
+        MatchingJoin matchingJoin = matchingJoinRepository.findById(matchingJoinId)
+                .orElseThrow(() -> new ProjectException(MATCHING_JOIN_NOT_FOUND));
+
+        Matching matching = matchingJoin.getMatching();
+
+        Long loginMemberId = getMember().getId();
+
+        matchingJoin.validate(getMember().getId());
+
+        matchingJoin.calculate(0);
+        matchingJoinRepository.save(matchingJoin);
+    }
+
 
     public List<MatchingJoinResponse> getMatchingJoins(Long matchingId) {
         List<MatchingJoin> matchingJoinList = matchingJoinRepository.findByMatchingId(matchingId);
         return matchingJoinList.stream()
                 .map(MatchingJoinResponse::from)
                 .collect(Collectors.toList());
-
     }
 
 

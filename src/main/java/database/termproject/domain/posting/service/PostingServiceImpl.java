@@ -1,6 +1,5 @@
 package database.termproject.domain.posting.service;
 
-import com.fasterxml.jackson.databind.deser.DataFormatReaders;
 import database.termproject.domain.facilities.service.FacilitiesService;
 import database.termproject.domain.matchingjoin.dto.request.MatchingJoinRequest;
 import database.termproject.domain.matchingjoin.dto.response.MatchingJoinResponse;
@@ -89,7 +88,7 @@ public class PostingServiceImpl {
         );
 
         if(postingType == PostingType.MATCHING){
-            matchingJoinService.matchingJoin(new MatchingJoinRequest(matching.getId(), null));
+            matchingJoinService.createMatchingJoin(new MatchingJoinRequest(matching.getId(), null));
         }
 
         List<MatchingJoinResponse> matchingJoinList = matchingJoinService.getMatchingJoins(matching.getId());

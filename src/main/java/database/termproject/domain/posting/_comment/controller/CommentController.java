@@ -5,6 +5,7 @@ import database.termproject.domain.posting._comment.dto.request.CommentEditReque
 import database.termproject.domain.posting._comment.dto.request.CommentRemoveRequest;
 import database.termproject.domain.posting._comment.dto.request.CommentReplyRequest;
 import database.termproject.domain.posting._comment.dto.request.CommentRequest;
+import database.termproject.domain.posting._comment.dto.response.PostingCommentResponse;
 import database.termproject.domain.posting._comment.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,16 +24,21 @@ public class CommentController {
     @Secured({"ROLE_USER", "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_ANONYMOUS"})
     @PostMapping
     public ResponseEntity<?> createComment(@RequestBody CommentRequest commentRequest) {
+
+        PostingCommentResponse postingCommentResponse = commentService.addComment(commentRequest);
+
         return ResponseEntity.ok(
-                commentService.addComment(commentRequest)
+                commentService.getCommentResponse(postingCommentResponse.getPostingId())
         );
     }
 
     @Secured({"ROLE_USER", "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_ANONYMOUS"})
     @PostMapping("/reply")
     public ResponseEntity<?> createReply(@RequestBody CommentReplyRequest commentReplyRequest) {
+
+        PostingCommentResponse postingCommentResponse = commentService.addReplyComment(commentReplyRequest);
         return ResponseEntity.ok(
-                commentService.addReplyComment(commentReplyRequest)
+                commentService.getCommentResponse(postingCommentResponse.getPostingId())
         );
     }
 

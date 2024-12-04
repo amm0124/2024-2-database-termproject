@@ -39,7 +39,12 @@ public enum ProjectError {
     //matching join
     MATCHING_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "참여한 매칭입니다."),
     MATCHING_CAPACITY_EXCEEDED(HttpStatus.BAD_REQUEST, "매칭의 최대 인원을 초과하였습니다."),
-    MATCHING_SINGLE_PLAYER_ONLY(HttpStatus.BAD_REQUEST, "게임 매칭은 한 명만 할 수 있습니다.")
+    MATCHING_SINGLE_PLAYER_ONLY(HttpStatus.BAD_REQUEST, "게임 매칭은 한 명만 할 수 있습니다."),
+    MATCHING_BAD_REQUEST(HttpStatus.BAD_REQUEST, "요청 body 잘못 됨"),
+    MATCHING_JOIN_NOT_FOUND(HttpStatus.NOT_FOUND, "매칭 참여 정보를 찾을 수 없습니다"),
+    MATCHING_JOIN_CANCELLED_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "나의 매칭은 취소 할 수 없습니다."),
+    MATCHING_MISMATCHING(HttpStatus.BAD_REQUEST,"나의 매칭이 아닙니다.")
+
 
 
 

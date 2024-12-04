@@ -4,6 +4,7 @@ import database.termproject.domain.member.entity.Member;
 import database.termproject.domain.member.entity.Role;
 
 public record MemberResponse(
+        Long memberId,
         String email,
         Role role,
         boolean isDeleted,
@@ -14,6 +15,7 @@ public record MemberResponse(
 ) {
     public static MemberResponse from(Member member) {
         return new MemberResponse(
+                member.getId(),
                 member.getEmail(),
                 member.getRole(),
                 member.isDeleted(),

@@ -9,12 +9,15 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLRestriction;
 
 import static database.termproject.global.error.ProjectError.MATCHING_CAPACITY_EXCEEDED;
+import static database.termproject.global.error.ProjectError.MATCHING_JOIN_CANCELLED_NOT_ALLOWED;
 
 @Table
 @Entity
 @Getter
+@SQLRestriction("is_deleted = false")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Matching extends BaseEntity {
 
@@ -65,11 +68,30 @@ public class Matching extends BaseEntity {
         return this;
     }
 
-    public void subtractCount(Integer count){
+    public void addNow(Integer count){
         if (this.now + count > capacity) {
             throw new ProjectException(MATCHING_CAPACITY_EXCEEDED);
         }
         this.now = this.now + count;
+    }
+
+    public void addCount(Integer count){
+        this.now += count;
+    }
+
+    // 사람 증가로 인한 now 인원 증가
+    public void subtractNow(Integer count){
+        if(this.now - count <0){
+            throw new ProjectException(MATCHING_CAPACITY_EXCEEDED);
+        }
+        this.now = this.now - count;
+    }
+
+    public boolean validate(Long memberId){
+        if(this.getPosting().getMember().getId() == memberId){
+            return true;
+        }
+        return false;
     }
 
 }
