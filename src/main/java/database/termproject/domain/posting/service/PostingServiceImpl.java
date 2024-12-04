@@ -5,6 +5,7 @@ import database.termproject.domain.posting._comment.dto.response.PostingCommentR
 import database.termproject.domain.posting._comment.service.CommentService;
 import database.termproject.domain.posting.dto.request.MatchingTournamentPostingRequest;
 import database.termproject.domain.posting.dto.request.PostingDeleteRequest;
+import database.termproject.domain.posting.dto.request.UpdatePostingRequest;
 import database.termproject.domain.posting.dto.response.MatchingResponse;
 import database.termproject.domain.posting.dto.response.PostingDetailResponse;
 import database.termproject.domain.posting.dto.response.PostingResponse;
@@ -18,6 +19,7 @@ import database.termproject.global.error.ProjectException;
 import database.termproject.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.sql.Update;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static database.termproject.global.error.ProjectError.POSTING_DELETE_REQUEST_MISMATCHING;
 import static database.termproject.global.error.ProjectError.POSTING_NOT_FOUND;
 
 @Service
@@ -106,7 +109,24 @@ public class PostingServiceImpl {
     public void deletePosting(PostingDeleteRequest postingDeleteRequest){
         Long postingId = postingDeleteRequest.postingId();
         Posting posting = getPostingByPostingId(postingId);
-        posting.softDelete();
+
+        if(validatingMyPosting(postingId)){
+            posting.softDelete();
+        }
+    }
+
+    @Transactional
+    public PostingDetailResponse updatePosting(UpdatePostingRequest updatePostingRequest){
+        Long postingId = updatePostingRequest.postingId();
+        Posting posting = getPostingByPostingId(postingId);
+
+        if(validatingMyPosting(postingId)){
+            posting.updatePosting(updatePostingRequest.title(),
+                    updatePostingRequest.game(),
+                    updatePostingRequest.content());
+        }
+        
+        return getPostingDetailResponse(postingId);
     }
 
     public Posting getPostingByPostingId(Long postingId) {
@@ -120,6 +140,15 @@ public class PostingServiceImpl {
         Object impl = authentication.getPrincipal();
         Member member = ((UserDetailsImpl) impl).getMember();
         return member;
+    }
+
+    private boolean validatingMyPosting(Long postingId){
+        Member member = getMember();
+        Posting posting = getPostingByPostingId(postingId);
+        if(posting.getMember().getId() != member.getId()){
+            throw new ProjectException(POSTING_DELETE_REQUEST_MISMATCHING);
+        }
+        return true;
     }
 
 }
