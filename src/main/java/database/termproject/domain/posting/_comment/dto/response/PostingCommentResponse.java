@@ -38,13 +38,14 @@ public class PostingCommentResponse {
     }
 
     public static PostingCommentResponse fromEntity(Comment comment){
+
         return PostingCommentResponse.builder()
                 .commentId(comment.getId())
                 .postingId(comment.getPosting().getId())
                 .memberId(comment.getMember().getId())
-                .memberName(comment.getMember().getMemberProfile().getName())
+                .memberName(comment.isDeleted() != true ? comment.getMember().getMemberProfile().getName() : "삭제")
                 .parentCommentId(comment.getParentComment() != null ? comment.getParentComment().getId() : null)
-                .commentContent(comment.getContent())
+                .commentContent(comment.isDeleted() != true ? comment.getContent() : "삭제된 댓글입니다.")
                 .isDeleted(comment.isDeleted())
                 .build();
     }
@@ -52,4 +53,5 @@ public class PostingCommentResponse {
     public void addPostingCommentResponse(PostingCommentResponse postingCommentResponse) {
         this.replyList.add(postingCommentResponse);
     }
+
 }

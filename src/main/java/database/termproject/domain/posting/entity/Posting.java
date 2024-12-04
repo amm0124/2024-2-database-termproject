@@ -7,6 +7,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(indexes = {
@@ -14,6 +16,8 @@ import lombok.NoArgsConstructor;
         @Index(name = "idx_posting_type", columnList = "postingType")
 })
 @Getter
+@SQLRestriction("is_deleted = false")
+@SQLDelete(sql = "UPDATE posting SET is_deleted = true where id = ?")
 @NoArgsConstructor(access = AccessLevel.PROTECTED) //이거 왜 없으면 빨간 줄? posting
 public class Posting extends BaseEntity {
 
@@ -39,4 +43,17 @@ public class Posting extends BaseEntity {
         this.postingType = postingType;
     }
 
+
+    public Posting updatePosting(String title, String game, String content) {
+        if (title != null) {
+            this.title = title;
+        }
+        if (game != null) {
+            this.game = game;
+        }
+        if (content != null) {
+            this.content = content;
+        }
+        return this;
+    }
 }

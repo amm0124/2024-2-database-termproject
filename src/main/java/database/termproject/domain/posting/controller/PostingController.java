@@ -1,7 +1,9 @@
 package database.termproject.domain.posting.controller;
 
 import database.termproject.domain.posting.dto.request.MatchingTournamentPostingRequest;
+import database.termproject.domain.posting.dto.request.PostingDeleteRequest;
 import database.termproject.domain.posting.dto.request.PostingRequest;
+import database.termproject.domain.posting.dto.request.UpdatePostingRequest;
 import database.termproject.domain.posting.dto.response.PostingDetailResponse;
 import database.termproject.domain.posting.dto.response.PostingResponse;
 import database.termproject.domain.posting.entity.Posting;
@@ -94,14 +96,24 @@ public class PostingController {
         );
     }
 
-    //GET promotion
-
-
-    //PUT
-
-
 
     //DELETE
+    @DeleteMapping()
+    public ResponseEntity<?> deletePosting(@RequestBody PostingDeleteRequest postingDeleteRequest) {
+        postingService.deletePosting(postingDeleteRequest);
+        return ResponseEntity.noContent().build();
+    }
+
+    //PUT
+    @PutMapping()
+    public ResponseEntity<?> updatePosting(@RequestBody UpdatePostingRequest updatePostingRequest) {
+        return ResponseEntity.ok(
+                postingService.updatePosting(updatePostingRequest)
+        );
+    }
+
+
+
 
 
 

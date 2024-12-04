@@ -17,7 +17,6 @@ import java.util.List;
 @Entity
 @Table
 @Getter
-@SQLRestriction("is_deleted = false")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Comment extends BaseEntity {
 
@@ -33,8 +32,6 @@ public class Comment extends BaseEntity {
     private String content;
 
     private int depth = 1;
-
-    private boolean isDeleted;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_comment_id")
@@ -61,6 +58,11 @@ public class Comment extends BaseEntity {
 
     public void addReplies(Comment replies){
         this.replies.add(replies);
+        replies.setParentComment(this);
+    }
+
+    public void setParentComment(Comment parentComment){
+        this.parentComment = parentComment;
     }
 
     public void setCommentDepth(){
@@ -81,5 +83,14 @@ public class Comment extends BaseEntity {
         }
         return this.parentComment.getId();
     }
+
+    public void updateContent(String content){
+        this.content = content;
+    }
+
+    public void deleteComment(){
+        this.isDeleted = true;
+    }
+
 
 }

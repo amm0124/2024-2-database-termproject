@@ -11,6 +11,7 @@ import java.util.List;
 public record PostingResponse(
         Long postingId,
         String title,
+        String game,
         LocalDateTime createdAt,
         MemberResponse memberResponse,
         String content,
@@ -20,6 +21,7 @@ public record PostingResponse(
         return new PostingResponse(
                 posting.getId(),
                 posting.getTitle(),
+                posting.getGame(),
                 posting.getCreatedAt(),
                 MemberResponse.from(posting.getMember()),
                 posting.getContent(),
