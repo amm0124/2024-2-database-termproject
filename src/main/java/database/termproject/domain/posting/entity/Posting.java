@@ -43,4 +43,17 @@ public class Posting extends BaseEntity {
         this.postingType = postingType;
     }
 
+
+    public Posting updatePosting(String title, String game, String content) {
+        if (title != null) {
+            this.title = title;
+        }
+        if (game != null) {
+            this.game = game;
+        }
+        if (content != null) {
+            this.content = content;
+        }
+        return this;
+    }
 }
