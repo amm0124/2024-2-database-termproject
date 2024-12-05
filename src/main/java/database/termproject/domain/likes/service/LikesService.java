@@ -2,6 +2,7 @@ package database.termproject.domain.likes.service;
 
 
 import database.termproject.domain.likes.dto.request.LikeRequest;
+import database.termproject.domain.likes.dto.response.LikesResponse;
 import database.termproject.domain.likes.entity.Likes;
 import database.termproject.domain.likes.entity.LikesType;
 import database.termproject.domain.likes.repository.LikesRepository;
@@ -16,8 +17,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import static database.termproject.domain.likes.entity.LikesType.DISLIKES;
-import static database.termproject.domain.likes.entity.LikesType.LIKES;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static database.termproject.global.error.ProjectError.LIKE_ALREADY_EXISTS;
 
 @Service
@@ -27,8 +29,6 @@ public class LikesService {
     private final LikesRepository likesRepository;
     private final PostingServiceImpl postingService;
 
-    
-    //todo : controller에서 type을 넣어 주어 한 메서드로 변경해버리자
     @Transactional
     public void addLikes(LikeRequest likeRequest, LikesType likesType){
         Long postingId = likeRequest.postingId();
@@ -59,6 +59,11 @@ public class LikesService {
         return likes;
     }
 
+    public List<LikesResponse> getLikseResponse(Long postingId) {
+        List<Likes> likesList = likesRepository.findByPosting_Id(postingId);
+        return likesList.stream().map(LikesResponse::from)
+                .collect(Collectors.toList());
+    }
 
     private Member getMember(){
         Authentication authentication = SecurityContextHolder
