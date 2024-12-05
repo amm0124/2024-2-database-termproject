@@ -15,7 +15,8 @@ public record PostingResponse(
         LocalDateTime createdAt,
         MemberResponse memberResponse,
         String content,
-        PostingType postingType
+        PostingType postingType,
+        Integer LikesCount
 ) {
     public static PostingResponse fromEntity(Posting posting){
         return new PostingResponse(
@@ -25,7 +26,8 @@ public record PostingResponse(
                 posting.getCreatedAt(),
                 MemberResponse.from(posting.getMember()),
                 posting.getContent(),
-                posting.getPostingType()
+                posting.getPostingType(),
+                posting.getLikesCount()
         );
     }
 
