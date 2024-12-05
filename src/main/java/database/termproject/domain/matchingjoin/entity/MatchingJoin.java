@@ -15,8 +15,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLRestriction;
 
-import static database.termproject.global.error.ProjectError.MATCHING_JOIN_CANCELLED_NOT_ALLOWED;
-import static database.termproject.global.error.ProjectError.MATCHING_MISMATCHING;
+import static database.termproject.global.error.ProjectError.*;
 
 
 @Table
@@ -54,14 +53,19 @@ public class MatchingJoin extends BaseEntity {
     //count로 변경함
     public void calculate(Integer count){
         //감소
-        Integer temp = this.count - count; //Matching의 변경 수량
-        this.count = count;
-        
-        if(temp > 0){ //매칭 인원 감소 -> now 인원 감소
-            this.getMatching().subtractNow(temp);
-        }else if(temp < 0){ //매칭 인원 증가 -> now 인원 증가
-            this.getMatching().addCount(temp);
+
+        if(count < 0) {
+            throw new ProjectException(MATCHING_BAD_REQUEST);
         }
+
+        Integer temp = this.count - count; //Matching의 감소 수량
+
+        this.count = count;
+
+        if(temp !=0){
+            this.getMatching().subtractNow(temp);
+        }
+
         if(this.count == 0){
             this.isDeleted = true;
         }

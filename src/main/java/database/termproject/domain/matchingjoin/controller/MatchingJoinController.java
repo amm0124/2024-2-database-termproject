@@ -35,7 +35,7 @@ public class MatchingJoinController {
     @PutMapping("/tournament/edit")
     @Secured({"ROLE_USER", "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_ANONYMOUS"})
     public ResponseEntity<?> editMatchingJoin(@RequestBody EditMatchingJoinRequest editMatchingJoinRequest){
-        //matchingJoinService.edit(editMatchingJoinRequest);
+        matchingJoinService.edit(editMatchingJoinRequest);
         return ResponseEntity.ok().build();
     }
 

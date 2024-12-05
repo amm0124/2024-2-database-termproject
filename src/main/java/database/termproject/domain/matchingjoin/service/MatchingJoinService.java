@@ -11,6 +11,7 @@ import database.termproject.domain.posting.service.MatchingService;
 import database.termproject.global.error.ProjectError;
 import database.termproject.global.error.ProjectException;
 import database.termproject.global.security.UserDetailsImpl;
+import jdk.jfr.Description;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -60,6 +61,7 @@ public class MatchingJoinService {
     }
 
     @Transactional
+    @Description("매칭 취소")
     public void cancel(EditMatchingJoinRequest editMatchingJoinRequest){
         Long matchingJoinId = editMatchingJoinRequest.matchingJoinId();
         if(editMatchingJoinRequest.count() != null){
@@ -79,6 +81,23 @@ public class MatchingJoinService {
 
         matchingJoinRepository.save(matchingJoin);
     }
+
+    @Transactional
+    @Description("대회용")
+    public void edit(EditMatchingJoinRequest editMatchingJoinRequest){
+        Long matchingJoinId = editMatchingJoinRequest.matchingJoinId();
+
+        MatchingJoin matchingJoin = matchingJoinRepository.findById(matchingJoinId)
+                .orElseThrow(() -> new ProjectException(MATCHING_JOIN_NOT_FOUND));
+
+        Long loginMemberId = getMember().getId();
+
+        matchingJoin.validateMyRequest(loginMemberId); // 나의 요청 검증
+        matchingJoin.calculate(editMatchingJoinRequest.count());
+
+        matchingJoinRepository.save(matchingJoin);
+    }
+
 
 
     public List<MatchingJoinResponse> getMatchingJoins(Long matchingId) {

@@ -69,22 +69,28 @@ public class Matching extends BaseEntity {
     }
 
     public void addNow(Integer count){
-        if (this.now + count > capacity) {
+        if (this.now + count > capacity ) {
             throw new ProjectException(MATCHING_CAPACITY_EXCEEDED);
+        }else if(this.now + count < 0){
+            throw new ProjectException(MATCHING_CAPACITY_EXCEEDED);
+        }else {
+            this.now = this.now + count;
         }
-        this.now = this.now + count;
     }
 
     public void addCount(Integer count){
         this.now += count;
     }
 
-    // 사람 증가로 인한 now 인원 증가
+    // 사람 증가로 인한 now 인원 변경
     public void subtractNow(Integer count){
-        if(this.now - count <0){
+        if (this.now - count > capacity ) {
             throw new ProjectException(MATCHING_CAPACITY_EXCEEDED);
+        }else if(this.now - count < 0){
+            throw new ProjectException(MATCHING_CAPACITY_EXCEEDED);
+        }else {
+            this.now = this.now - count;
         }
-        this.now = this.now - count;
     }
 
     public boolean validate(Long memberId){
