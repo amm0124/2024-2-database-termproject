@@ -69,17 +69,20 @@ public class MatchingJoin extends BaseEntity {
     }
 
     //matching join validate 1. posting
-    public boolean validate(Long memberId){
+    public boolean validateMyRequest(Long loginMemberId){
 
-        // 작성자 == 나
-        if(this.matching.getPosting().getMember().getId() == memberId){
-            throw new ProjectException(MATCHING_JOIN_CANCELLED_NOT_ALLOWED);
-        }
-
-        if(memberId != member.getId()){
+        if(this.member.getId() != loginMemberId){
             throw new ProjectException(MATCHING_MISMATCHING);
         }
         return true;
+
     }
-    
+
+    public boolean validateOwner(Long loginMemberId){
+        if(this.matching.getPosting().getMember().getId() == loginMemberId){
+            throw new ProjectException(MATCHING_JOIN_CANCELLED_NOT_ALLOWED);
+        }
+        return true;
+    }
+
 }

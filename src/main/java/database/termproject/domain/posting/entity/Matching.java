@@ -89,9 +89,9 @@ public class Matching extends BaseEntity {
 
     public boolean validate(Long memberId){
         if(this.getPosting().getMember().getId() == memberId){
-            return true;
+            throw new ProjectException(MATCHING_JOIN_CANCELLED_NOT_ALLOWED);
         }
-        return false;
+        return true;
     }
 
 }

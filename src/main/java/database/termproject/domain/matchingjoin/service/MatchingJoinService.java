@@ -73,9 +73,10 @@ public class MatchingJoinService {
 
         Long loginMemberId = getMember().getId();
 
-        matchingJoin.validate(getMember().getId());
-
+        matchingJoin.validateMyRequest(loginMemberId);
+        matching.validate(loginMemberId);
         matchingJoin.calculate(0);
+
         matchingJoinRepository.save(matchingJoin);
     }
 
