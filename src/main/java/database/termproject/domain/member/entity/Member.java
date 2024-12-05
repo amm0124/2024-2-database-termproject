@@ -44,6 +44,7 @@ public class Member extends BaseEntity {
         this.password = password;
     }
 
+
     public boolean isVerifyMember(){
         if(this.isVerify == true) return true;
         return false;
@@ -66,4 +67,7 @@ public class Member extends BaseEntity {
     }
 
 
+    public void setRole(Role role){
+        this.role = role;
+    }
 }
