@@ -9,10 +9,15 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLRestriction;
+
+import static database.termproject.global.error.ProjectError.MATCHING_CAPACITY_EXCEEDED;
+import static database.termproject.global.error.ProjectError.MATCHING_JOIN_CANCELLED_NOT_ALLOWED;
 
 @Table
 @Entity
 @Getter
+@SQLRestriction("is_deleted = false")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Matching extends BaseEntity {
 
@@ -35,7 +40,7 @@ public class Matching extends BaseEntity {
         this.posting = posting;
         this.eventTime = eventTime;
         this.place = place;
-        this.now = 1;
+        this.now = 0;
         this.capacity = capacity;
     }
 
@@ -63,5 +68,36 @@ public class Matching extends BaseEntity {
         return this;
     }
 
+    public void addNow(Integer count){
+        if (this.now + count > capacity ) {
+            throw new ProjectException(MATCHING_CAPACITY_EXCEEDED);
+        }else if(this.now + count < 0){
+            throw new ProjectException(MATCHING_CAPACITY_EXCEEDED);
+        }else {
+            this.now = this.now + count;
+        }
+    }
+
+    public void addCount(Integer count){
+        this.now += count;
+    }
+
+    // 사람 증가로 인한 now 인원 변경
+    public void subtractNow(Integer count){
+        if (this.now - count > capacity ) {
+            throw new ProjectException(MATCHING_CAPACITY_EXCEEDED);
+        }else if(this.now - count < 0){
+            throw new ProjectException(MATCHING_CAPACITY_EXCEEDED);
+        }else {
+            this.now = this.now - count;
+        }
+    }
+
+    public boolean validate(Long memberId){
+        if(this.getPosting().getMember().getId() == memberId){
+            throw new ProjectException(MATCHING_JOIN_CANCELLED_NOT_ALLOWED);
+        }
+        return true;
+    }
 
 }

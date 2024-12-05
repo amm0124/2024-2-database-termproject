@@ -21,6 +21,7 @@ public class MatchingService {
 
     private final MatchingRepository matchingRepository;
 
+    @Transactional
     public Matching save(Posting posting, String when, String place, int limit) {
 
         Matching matching = Matching.builder()
