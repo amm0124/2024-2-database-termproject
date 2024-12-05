@@ -34,6 +34,8 @@ public class Posting extends BaseEntity {
     @Enumerated(EnumType.STRING) // Enum이 문자열로 저장되도록 설정
     private PostingType postingType;
 
+    private Integer likesCount;
+
     @Builder
     public Posting(Member member, String title, String game, String content, PostingType postingType) {
         this.member = member;
@@ -41,8 +43,8 @@ public class Posting extends BaseEntity {
         this.game = game;
         this.content = content;
         this.postingType = postingType;
+        this.likesCount = 0;
     }
-
 
     public Posting updatePosting(String title, String game, String content) {
         if (title != null) {
@@ -56,4 +58,16 @@ public class Posting extends BaseEntity {
         }
         return this;
     }
+
+    public void addLikeCounts(){
+        this.likesCount++;
+    }
+
+    public void subtractLikesCount(){
+        this.likesCount--;
+    }
+
+
+
+
 }
