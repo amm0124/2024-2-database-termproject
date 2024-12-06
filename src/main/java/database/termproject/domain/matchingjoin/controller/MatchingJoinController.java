@@ -4,6 +4,7 @@ import database.termproject.domain.matchingjoin.dto.request.EditMatchingJoinRequ
 import database.termproject.domain.matchingjoin.dto.request.MatchingJoinRequest;
 import database.termproject.domain.matchingjoin.dto.response.MatchingJoinResponse;
 import database.termproject.domain.matchingjoin.service.MatchingJoinService;
+import database.termproject.domain.posting.service.MatchingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -17,6 +18,7 @@ import java.util.List;
 public class MatchingJoinController {
 
     private final MatchingJoinService matchingJoinService;
+    private final MatchingService matchingService;
 
     @PostMapping()
     @Secured({"ROLE_USER", "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_ANONYMOUS"})
@@ -29,14 +31,16 @@ public class MatchingJoinController {
     @Secured({"ROLE_USER", "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_ANONYMOUS"})
     public ResponseEntity<?> cancelMatchingJoin(@RequestBody EditMatchingJoinRequest editMatchingJoinRequest){
         matchingJoinService.cancel(editMatchingJoinRequest);
-        return ResponseEntity.ok().build();
+        List<MatchingJoinResponse> matchingJoinResponseList = matchingJoinService.getMatchingJoins(editMatchingJoinRequest.matchingJoinId());
+        return ResponseEntity.ok(matchingJoinResponseList);
     }
 
     @PutMapping("/tournament/edit")
     @Secured({"ROLE_USER", "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_ANONYMOUS"})
     public ResponseEntity<?> editMatchingJoin(@RequestBody EditMatchingJoinRequest editMatchingJoinRequest){
         matchingJoinService.edit(editMatchingJoinRequest);
-        return ResponseEntity.ok().build();
+        List<MatchingJoinResponse> matchingJoinResponseList = matchingJoinService.getMatchingJoins(editMatchingJoinRequest.matchingJoinId());
+        return ResponseEntity.ok(matchingJoinResponseList);
     }
 
 }

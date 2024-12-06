@@ -80,6 +80,7 @@ public class MatchingJoinService {
         matchingJoin.calculate(0);
 
         matchingJoinRepository.save(matchingJoin);
+
     }
 
     @Transactional

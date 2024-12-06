@@ -33,7 +33,9 @@ public class LikesController {
     @PostMapping("/subtract")
     public ResponseEntity<?> subtractLike(@RequestBody LikeRequest likeRequest){
         likesService.addLikes(likeRequest, LikesType.DISLIKES);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(postingService.
+                getPostingDetailResponse(likeRequest.postingId())
+        );
     }
 
 
