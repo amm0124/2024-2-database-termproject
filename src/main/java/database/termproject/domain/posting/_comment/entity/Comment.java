@@ -17,7 +17,6 @@ import java.util.List;
 @Entity
 @Table
 @Getter
-@SQLRestriction("is_deleted = false")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Comment extends BaseEntity {
 
@@ -93,5 +92,8 @@ public class Comment extends BaseEntity {
         this.isDeleted = true;
     }
 
+    public void restoreComment(){
+        this.isDeleted = false;
+    }
 
 }
