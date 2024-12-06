@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 콘솔</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/js/adminConsole.js"></script>  <!-- 외부 JS 파일을 불러옵니다 -->
+</head>
+<body>
+<h1>관리자 콘솔</h1>
+
+<!-- 게시글 삭제 -->
+<h2>게시글 삭제</h2>
+<label for="deletePostingId">게시글 ID: </label>
+<input type="text" id="deletePostingId" placeholder="삭제할 게시글 ID 입력">
+<button onclick="deletePosting()">게시글 삭제</button>
+
+<h2>게시글 복구</h2>
+<label for="restorePostingId">게시글 ID: </label>
+<input type="text" id="restorePostingId" placeholder="복구할 게시글 ID 입력">
+<button onclick="restorePosting()">게시글 복구</button>
+
+<!-- 댓글 삭제 -->
+<h2>댓글 삭제</h2>
+<label for="deleteCommentId">댓글 ID: </label>
+<input type="text" id="deleteCommentId" placeholder="삭제할 댓글 ID 입력">
+<button onclick="deleteComment()">댓글 삭제</button>
+
+<h2>댓글 삭제</h2>
+<label for="restoreCommentId">댓글 ID: </label>
+<input type="text" id="restoreCommentId" placeholder="복구할 댓글 ID 입력">
+<button onclick="restoreComment()">댓글 삭제</button>
+
+
+
+</body>
+</html>

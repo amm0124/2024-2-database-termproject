@@ -10,7 +10,7 @@ import database.termproject.domain.posting._comment.dto.request.CommentRequest;
 import database.termproject.domain.posting._comment.dto.response.PostingCommentResponse;
 import database.termproject.domain.posting._comment.entity.Comment;
 import database.termproject.domain.posting.entity.Posting;
-import database.termproject.domain.posting.repository.PostingJPARepository;
+import database.termproject.domain.posting.repository.PostingRepository;
 import database.termproject.global.error.ProjectException;
 import database.termproject.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ import static database.termproject.global.error.ProjectError.*;
 public class CommentService {
 
     private final CommentRepository commentRepository;
-    private final PostingJPARepository postingRepository;
+    private final PostingRepository postingRepository;
 
     @Transactional
     public PostingCommentResponse addComment(CommentRequest commentRequest) {
@@ -89,6 +89,11 @@ public class CommentService {
     public Comment getCommentByCommentId(Long commentId) {
         return commentRepository.findById(commentId)
                 .orElseThrow(() -> new ProjectException(COMMENT_NOT_FOUND));
+    }
+
+    public Comment getDeleteCommentByCommentId(Long commentId) {
+        return commentRepository.findDeletedCommentById(commentId)
+                .orElseThrow(()-> new ProjectException(COMMENT_NOT_FOUND));
     }
 
 

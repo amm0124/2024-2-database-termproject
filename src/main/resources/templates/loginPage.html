@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+<h2>관리자 Login</h2>
+<form id="login-form">
+    <input type="text" id="email" placeholder="Email" required><br>
+    <input type="password" id="password" placeholder="Password" required><br>
+    <button type="submit">Login</button>
+</form>
+
+<script th:inline="javascript">
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        try {
+            const response = await axios.post('/api/login', {
+                email: email,
+                password: password
+            });
+
+            const accessToken = response.headers['access'];
+            localStorage.setItem('access', accessToken);
+
+            console.log('Access Token 저장 완료:', accessToken);
+
+            window.location.href = '/admin/console';
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Login failed. Please check your credentials.');
+        }
+    });
+    /*]]>*/
+</script>
+</body>
+</html>

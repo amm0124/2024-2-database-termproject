@@ -21,8 +21,9 @@ import org.hibernate.annotations.SQLRestriction;
 @NoArgsConstructor(access = AccessLevel.PROTECTED) //이거 왜 없으면 빨간 줄? posting
 public class Posting extends BaseEntity {
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id") // 외래 키 컬럼 이름 명시
+
     private Member member;
 
     private String title;
@@ -67,7 +68,9 @@ public class Posting extends BaseEntity {
         this.likesCount--;
     }
 
-
+    public void restore(){
+        this.isDeleted = false;
+    }
 
 
 }
