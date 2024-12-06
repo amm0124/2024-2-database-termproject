@@ -6,7 +6,6 @@ import database.termproject.domain.posting.dto.request.MatchingTournamentPosting
 import database.termproject.domain.posting.entity.Matching;
 import database.termproject.domain.posting.entity.Posting;
 import database.termproject.domain.posting.repository.MatchingRepository;
-import database.termproject.domain.posting.repository.PostingRepository;
 import database.termproject.global.error.ProjectError;
 import database.termproject.global.error.ProjectException;
 import lombok.RequiredArgsConstructor;
