@@ -13,7 +13,7 @@ import database.termproject.domain.posting.dto.response.PostingDetailResponse;
 import database.termproject.domain.posting.dto.response.PostingResponse;
 import database.termproject.domain.posting.entity.Matching;
 import database.termproject.domain.posting.entity.Posting;
-import database.termproject.domain.posting.repository.PostingJPARepository;
+import database.termproject.domain.posting.repository.PostingRepository;
 import database.termproject.domain.posting.entity.PostingType;
 import database.termproject.global.error.ProjectException;
 import database.termproject.global.security.UserDetailsImpl;
@@ -35,7 +35,7 @@ import static database.termproject.global.error.ProjectError.POSTING_NOT_FOUND;
 @Slf4j
 public class PostingServiceImpl {
 
-    private final PostingJPARepository postingJPARepository;
+    private final PostingRepository postingRepository;
     private final CommentService commentService;
     private final MatchingService matchingService;
     private final FacilitiesService facilitiesService;
@@ -58,7 +58,7 @@ public class PostingServiceImpl {
                 .postingType(postingType)
                 .build();
 
-        postingJPARepository.save(posting);
+        postingRepository.save(posting);
         System.out.println("포스팅완료`~~");
         return posting;
     }
@@ -100,7 +100,7 @@ public class PostingServiceImpl {
 
     //Type별로 전체 postingdetailresponse 가져 옴
     public List<PostingDetailResponse> getPosting(PostingType postingType){
-        List<Posting> postingList = postingJPARepository.findByPostingType(postingType);
+        List<Posting> postingList = postingRepository.findByPostingType(postingType);
         return postingList.stream()
                 .map(posting -> {
                     Long postingId = posting.getId();
@@ -135,6 +135,9 @@ public class PostingServiceImpl {
         }
     }
 
+
+
+
     @Transactional
     public PostingDetailResponse updatePosting(UpdatePostingRequest updatePostingRequest){
         Long postingId = updatePostingRequest.postingId();
@@ -158,8 +161,28 @@ public class PostingServiceImpl {
     }
 
 
+    @Transactional
+    public PostingResponse restorePosting(Long postingId){
+        Posting posting = postingRepository.findDeletedPostingsById(postingId)
+                .orElseThrow(()-> new ProjectException(POSTING_NOT_FOUND));
+
+        System.out.println("복구");
+        
+        posting.restore();
+
+        System.out.println("복구완료");
+        return PostingResponse.fromEntity(posting);
+
+    }
+
+    public Posting getDeletePostingByPostingId(Long postingId){
+        Posting posting = postingRepository.findDeletedPostingsById(postingId)
+                .orElseThrow(()-> new ProjectException(POSTING_NOT_FOUND));
+        return posting;
+    }
+
     public Posting getPostingByPostingId(Long postingId) {
-        return postingJPARepository.findById(postingId)
+        return postingRepository.findById(postingId)
                 .orElseThrow(() -> new ProjectException(POSTING_NOT_FOUND));
     }
 

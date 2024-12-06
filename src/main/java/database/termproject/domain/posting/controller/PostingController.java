@@ -94,6 +94,18 @@ public class PostingController {
     }
 
 
+/*
+    @Secured({"ROLE_USER", "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_ANONYMOUS"})
+    @PostMapping("/restore/{postingId}")
+    public ResponseEntity<?> restorePosting(@PathVariable Long postingId) {
+        return ResponseEntity.ok(
+                postingService.restorePosting(postingId)
+        );
+
+    }
+*/
+
+
     //DELETE
     @DeleteMapping
     public ResponseEntity<?> deletePosting(@RequestBody PostingDeleteRequest postingDeleteRequest) {
