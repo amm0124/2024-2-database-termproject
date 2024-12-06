@@ -1,10 +1,26 @@
 package database.termproject.domain.posting.repository;
 
 import database.termproject.domain.posting.entity.Posting;
+import database.termproject.domain.posting.entity.PostingType;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface PostingRepository {
+
+@Repository
+public interface PostingRepository extends JpaRepository<Posting, Long>{
     List<Posting> findByMemberId(Long memberId);
-    void save(Posting posting);
+    List<Posting> findByPostingType(PostingType postingType);
+
+    @Query(value = "SELECT * FROM posting WHERE is_deleted = true AND id = :postingId", nativeQuery = true)
+    Optional<Posting> findDeletedPostingsById(@Param("postingId") Long postingId);
 }
+
+
+
+
+
