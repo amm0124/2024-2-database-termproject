@@ -100,7 +100,7 @@ public class PostingServiceImpl {
 
     //Type별로 전체 postingdetailresponse 가져 옴
     public List<PostingDetailResponse> getPosting(PostingType postingType){
-        List<Posting> postingList = postingRepository.findByPostingType(postingType);
+        List<Posting> postingList = postingRepository.findByPostingTypeOrderedByLikesCountDesc(postingType);
         return postingList.stream()
                 .map(posting -> {
                     Long postingId = posting.getId();

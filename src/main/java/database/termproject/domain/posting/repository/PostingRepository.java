@@ -14,7 +14,11 @@ import java.util.Optional;
 @Repository
 public interface PostingRepository extends JpaRepository<Posting, Long>{
     List<Posting> findByMemberId(Long memberId);
-    List<Posting> findByPostingType(PostingType postingType);
+
+    @Query("SELECT p FROM Posting p WHERE p.postingType = :postingType ORDER BY p.likesCount DESC")
+    List<Posting> findByPostingTypeOrderedByLikesCountDesc(@Param("postingType") PostingType postingType);
+
+    //List<Posting> findByPostingType(PostingType postingType);
 
     @Query(value = "SELECT * FROM posting WHERE is_deleted = true AND id = :postingId", nativeQuery = true)
     Optional<Posting> findDeletedPostingsById(@Param("postingId") Long postingId);

@@ -45,6 +45,18 @@ public class PostingController {
         );
     }
 
+    @Secured({"ROLE_USER", "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_ANONYMOUS"})
+    @PostMapping("/notice")
+    public ResponseEntity<?> createNoticePosting(@RequestBody PostingRequest postingRequest) {
+        Posting posting = postingService.createPosting(postingRequest, PostingType.NOTICE);
+        return ResponseEntity.ok(
+                PostingDetailResponse.from(PostingResponse.fromEntity(posting),
+                        null,
+                        null)
+        );
+    }
+
+
     //@Secured({"ROLE_USER", "ROLE_ADMIN", "ROLE_MANAGER"})
     @Secured({"ROLE_USER", "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_ANONYMOUS"})
     @PostMapping("/matching")
@@ -61,8 +73,6 @@ public class PostingController {
                 postingService.createMatchingPosting(matchingTournamentPostingRequest, PostingType.TOURNAMENT));
     }
 
-    //TODO : promotion 내일 회의 해야 함
-    
 
     //GET
     @GetMapping("/free")
@@ -79,6 +89,14 @@ public class PostingController {
         );
     }
 
+    @GetMapping("/notice")
+    public ResponseEntity<?> getNoticePosting() {
+        return ResponseEntity.ok(
+                postingService.getPosting(PostingType.NOTICE)
+        );
+    }
+
+
     @GetMapping("/matching")
     public ResponseEntity<?> getMatchingPosting() {
         return ResponseEntity.ok(
@@ -93,17 +111,6 @@ public class PostingController {
         );
     }
 
-
-/*
-    @Secured({"ROLE_USER", "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_ANONYMOUS"})
-    @PostMapping("/restore/{postingId}")
-    public ResponseEntity<?> restorePosting(@PathVariable Long postingId) {
-        return ResponseEntity.ok(
-                postingService.restorePosting(postingId)
-        );
-
-    }
-*/
 
 
     //DELETE
