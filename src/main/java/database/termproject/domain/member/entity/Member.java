@@ -15,7 +15,7 @@ import static database.termproject.domain.member.entity.Role.ROLE_USER;
 @Entity
 @Table
 @Getter
-@SQLRestriction("is_deleted = false")
+//@SQLRestriction("is_deleted = false")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE member SET is_deleted = true where id = ?")
 public class Member extends BaseEntity {

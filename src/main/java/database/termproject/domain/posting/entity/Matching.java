@@ -1,6 +1,5 @@
 package database.termproject.domain.posting.entity;
 
-
 import database.termproject.global.entity.BaseEntity;
 import database.termproject.global.error.ProjectError;
 import database.termproject.global.error.ProjectException;
@@ -43,11 +42,6 @@ public class Matching extends BaseEntity {
         this.now = 0;
         this.capacity = capacity;
     }
-
-    public void setFull(boolean status){
-        this.isFull = status;
-    }
-
 
     public Matching updateMatching(String eventTime, String place, Integer capacity){
         if(eventTime != null){

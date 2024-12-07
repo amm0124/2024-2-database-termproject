@@ -5,6 +5,7 @@ import database.termproject.domain.facilities.dto.response.FacilitiesResponse;
 import database.termproject.domain.facilities.entity.Facilities;
 import database.termproject.domain.facilities.repository.FacilitiesRepository;
 import database.termproject.domain.member.entity.Member;
+import database.termproject.domain.member.entity.Role;
 import database.termproject.global.error.ProjectError;
 import database.termproject.global.error.ProjectException;
 import database.termproject.global.security.UserDetailsImpl;
@@ -20,6 +21,11 @@ public class FacilitiesService {
 
     private final FacilitiesRepository facilitiesRepository;
 
+    @Transactional
+    public void save(Facilities facilities) {
+        facilitiesRepository.save(facilities);
+    }
+
 
     @Transactional
     public FacilitiesResponse register(FacilitiesRegisterRequest facilitiesRegisterRequest) {
@@ -32,6 +38,8 @@ public class FacilitiesService {
                 .addressDetail(facilitiesRegisterRequest.addressDetail())
                 .phone(member.getMemberProfile().getPhoneNumber())
                 .build();
+
+        member.setRole(Role.ROLE_MANAGER);
 
         facilitiesRepository.save(facilities);
         return FacilitiesResponse.from(facilities);

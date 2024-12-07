@@ -19,10 +19,18 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+
+        System.out.println("loadUserByUsername 시작");
+
         Member member = memberRepository.findByEmailWithProfile(email)
                 .orElseThrow(() -> new ProjectException(ProjectError.MEMBER_NOT_FOUND));
 
-        
+        System.out.println("찾긴 찾음. 이제 삭제된지 검사");
+
+
+    
+        System.out.println("loadUserByUsername");
+
         //user details에 담아서 return 하면 -> authentication manager가 인증
         return new UserDetailsImpl(member);
     }

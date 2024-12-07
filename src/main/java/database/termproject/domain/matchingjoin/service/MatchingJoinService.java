@@ -62,7 +62,7 @@ public class MatchingJoinService {
 
     @Transactional
     @Description("매칭 취소")
-    public void cancel(EditMatchingJoinRequest editMatchingJoinRequest){
+    public Long cancel(EditMatchingJoinRequest editMatchingJoinRequest){
         Long matchingJoinId = editMatchingJoinRequest.matchingJoinId();
         if(editMatchingJoinRequest.count() != null){
             throw new ProjectException(MATCHING_BAD_REQUEST);
@@ -77,19 +77,22 @@ public class MatchingJoinService {
 
         matchingJoin.validateMyRequest(loginMemberId);
         matching.validate(loginMemberId);
-        matchingJoin.calculate(0);
+
+        matchingJoin.softDelete();
 
         matchingJoinRepository.save(matchingJoin);
-
+        return matching.getId();
+        //return matchingService.findByMatchingId(matching.getId());
     }
 
     @Transactional
     @Description("대회용")
-    public void edit(EditMatchingJoinRequest editMatchingJoinRequest){
+    public Long edit(EditMatchingJoinRequest editMatchingJoinRequest){
         Long matchingJoinId = editMatchingJoinRequest.matchingJoinId();
 
         MatchingJoin matchingJoin = matchingJoinRepository.findById(matchingJoinId)
                 .orElseThrow(() -> new ProjectException(MATCHING_JOIN_NOT_FOUND));
+        Matching matching = matchingJoin.getMatching();
 
         Long loginMemberId = getMember().getId();
 
@@ -97,13 +100,15 @@ public class MatchingJoinService {
         matchingJoin.calculate(editMatchingJoinRequest.count());
 
         matchingJoinRepository.save(matchingJoin);
-    }
+        return matching.getId();
 
+    }
 
 
     public List<MatchingJoinResponse> getMatchingJoins(Long matchingId) {
         List<MatchingJoin> matchingJoinList = matchingJoinRepository.findByMatchingId(matchingId);
         return matchingJoinList.stream()
+                .filter(matchingJoin -> matchingJoin.getMember().isDeleted() == false)
                 .map(MatchingJoinResponse::from)
                 .collect(Collectors.toList());
     }

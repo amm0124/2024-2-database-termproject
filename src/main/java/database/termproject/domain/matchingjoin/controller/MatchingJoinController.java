@@ -30,16 +30,16 @@ public class MatchingJoinController {
     @PutMapping("/cancel")
     @Secured({"ROLE_USER", "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_ANONYMOUS"})
     public ResponseEntity<?> cancelMatchingJoin(@RequestBody EditMatchingJoinRequest editMatchingJoinRequest){
-        matchingJoinService.cancel(editMatchingJoinRequest);
-        List<MatchingJoinResponse> matchingJoinResponseList = matchingJoinService.getMatchingJoins(editMatchingJoinRequest.matchingJoinId());
+        Long matchingId = matchingJoinService.cancel(editMatchingJoinRequest);
+        List<MatchingJoinResponse> matchingJoinResponseList = matchingJoinService.getMatchingJoins(matchingId);
         return ResponseEntity.ok(matchingJoinResponseList);
     }
 
     @PutMapping("/tournament/edit")
     @Secured({"ROLE_USER", "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_ANONYMOUS"})
     public ResponseEntity<?> editMatchingJoin(@RequestBody EditMatchingJoinRequest editMatchingJoinRequest){
-        matchingJoinService.edit(editMatchingJoinRequest);
-        List<MatchingJoinResponse> matchingJoinResponseList = matchingJoinService.getMatchingJoins(editMatchingJoinRequest.matchingJoinId());
+        Long matchingId = matchingJoinService.edit(editMatchingJoinRequest);
+        List<MatchingJoinResponse> matchingJoinResponseList = matchingJoinService.getMatchingJoins(matchingId);
         return ResponseEntity.ok(matchingJoinResponseList);
     }
 
