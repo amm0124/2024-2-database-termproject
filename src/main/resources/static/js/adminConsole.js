@@ -124,6 +124,8 @@ function restoreComment(){
         })
     })
         .then(response => {
+            alert("hi");
+
             if (response.ok) {
                 alert('댓글이 복구되었습니다.');
             } else {
@@ -134,5 +136,74 @@ function restoreComment(){
             console.error('댓글 복구 오류:', error);
             alert('댓글 복구에 실패했습니다.');
         });
+
+}
+
+
+function registerManager(){
+
+    console.log("Dd");
+
+    const email = document.getElementById('email').value;
+
+    console.log(email)
+
+    const password = document.getElementById('password').value;
+    const name = document.getElementById('name').value;
+    const memberAddress = document.getElementById('memberAddress').value;
+    const memberAddressDetail = document.getElementById('memberAddressDetail').value;
+    const phoneNumber = document.getElementById('phoneNumber').value;
+    const storeName = document.getElementById('storeName').value;
+    const address = document.getElementById('address').value;
+    const addressDetail = document.getElementById('addressDetail').value;
+
+
+    console.log("등록");
+
+
+    // 필수 입력값 확인
+    if (!email || !password || !name || !memberAddress || !memberAddressDetail || !phoneNumber || !storeName || !address || !addressDetail) {
+        alert('모든 필드를 입력해주세요.');
+        return;
+    }
+
+    const token = localStorage.getItem('access');
+    const url = '/api/v1/admin/register/manager'; // 실제 API 경로에 맞게 수정하세요.
+
+
+
+
+    console.log("dd");
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({
+            email: email,
+            password: password,
+            name: name,
+            memberAddress: memberAddress,
+            memberAddressDetail: memberAddressDetail,
+            phoneNumber: phoneNumber,
+            storeName: storeName,
+            address: address,
+            addressDetail: addressDetail
+        })
+    })
+        .then(response => {
+            if (response.ok) {
+                alert('매니저가 성공적으로 등록되었습니다.');
+            } else {
+                alert('매니저 등록에 실패했습니다.');
+            }
+        })
+        .catch(error => {
+            console.error('매니저 등록 오류:', error);
+            alert('매니저 등록에 실패했습니다.');
+        });
+    console.log("dd");
 
 }
