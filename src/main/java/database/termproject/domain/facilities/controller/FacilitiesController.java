@@ -16,7 +16,7 @@ public class FacilitiesController {
     private final FacilitiesService facilitiesService;
 
     @PostMapping("/register")
-    @Secured({"ROLE_ADMIN", "ROLE_MANAGER"})
+    @Secured({"ROLE_ADMIN", "ROLE_MANAGER", "ROLE_USER", "ROLE_ANONYMOUS"})
     public ResponseEntity<?> registerFacilities(@RequestBody FacilitiesRegisterRequest facilitiesRegisterRequest) {
         return ResponseEntity.ok(facilitiesService
                 .register(facilitiesRegisterRequest)

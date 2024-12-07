@@ -30,4 +30,9 @@ public class AdminController {
         return "admin-console";
     }
 
+    @GetMapping("/signup")
+    public String signUp() {
+        return "signUpPage";
+    }
+
 }

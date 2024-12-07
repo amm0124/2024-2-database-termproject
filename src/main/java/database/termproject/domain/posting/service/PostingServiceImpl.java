@@ -78,8 +78,8 @@ public class PostingServiceImpl {
         if(place == null){ 
             place = facilitiesService.getFacilities().storeName();
         }
-        //else : 즉 대회가 아니면 자기 자신 참여해야 함
 
+        //else : 즉 대회가 아니면 자기 자신 참여해야 함
         Matching matching = matchingService.save(
                 posting,
                 matchingTournamentPostingRequest.when(),
@@ -102,6 +102,7 @@ public class PostingServiceImpl {
     public List<PostingDetailResponse> getPosting(PostingType postingType){
         List<Posting> postingList = postingRepository.findByPostingTypeOrderedByLikesCountDesc(postingType);
         return postingList.stream()
+                .filter(posting -> posting.getMember().isDeleted() == false)
                 .map(posting -> {
                     Long postingId = posting.getId();
                     return getPostingDetailResponse(postingId);

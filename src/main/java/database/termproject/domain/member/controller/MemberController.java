@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
+import static database.termproject.domain.member.entity.Role.ROLE_ANONYMOUS;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/member")
@@ -29,7 +31,7 @@ public class MemberController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> signUp(@RequestBody MemberSignUpRequestDto memberSignUpRequestDto){
-        memberService.signUp(memberSignUpRequestDto);
+        memberService.signUp(memberSignUpRequestDto, ROLE_ANONYMOUS);
         return ResponseEntity.ok().build();
     }
 

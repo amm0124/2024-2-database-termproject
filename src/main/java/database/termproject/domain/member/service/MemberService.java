@@ -1,6 +1,7 @@
 package database.termproject.domain.member.service;
 
 
+import database.termproject.domain.member.entity.Role;
 import database.termproject.domain.verifyemail.entity.EmailVerification;
 import database.termproject.domain.verifyemail.service.EmailService;
 import database.termproject.domain.member.dto.request.MemberEditRequest;
@@ -45,7 +46,7 @@ public class MemberService {
     }
 
     @Transactional
-    public void signUp(MemberSignUpRequestDto memberSignUpRequestDto) {
+    public Member signUp(MemberSignUpRequestDto memberSignUpRequestDto, Role role) {
         String email = memberSignUpRequestDto.email();
         String password = memberSignUpRequestDto.password();
 
@@ -61,6 +62,8 @@ public class MemberService {
                 .password(password)
                 .build();
 
+        member.setRole(role);
+
         MemberProfile memberProfile = MemberProfile.builder()
                 .name(memberSignUpRequestDto.name())
                 .address(memberSignUpRequestDto.address())
@@ -72,6 +75,7 @@ public class MemberService {
 
         memberProfileRepository.save(memberProfile);
         memberRepository.save(member);
+        return member;
     }
 
     @Transactional

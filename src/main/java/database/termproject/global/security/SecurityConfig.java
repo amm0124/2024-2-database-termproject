@@ -32,6 +32,7 @@ public class SecurityConfig {
     private final JwtUtil jwtUtil;
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
 
 
     @Bean
@@ -82,8 +83,7 @@ public class SecurityConfig {
         http.httpBasic(AbstractHttpConfigurer::disable);
 
         //csrf 해제
-        //http.csrf(AbstractHttpConfigurer::disable);
-        http.csrf(csrf -> csrf.disable());
+        http.csrf(AbstractHttpConfigurer::disable);
 
         http.headers(frameOptions -> frameOptions.disable());
 
@@ -94,7 +94,7 @@ public class SecurityConfig {
         http.logout(AbstractHttpConfigurer::disable);
 
         //세션 stateless
-        //http.sessionManagement(AbstractHttpConfigurer::disable);
+        http.sessionManagement(AbstractHttpConfigurer::disable);
 
 
         // 인증 필요한 경로
@@ -108,6 +108,9 @@ public class SecurityConfig {
                 .anyRequest().permitAll()
         );
 
+        http.exceptionHandling(exceptionHandling -> exceptionHandling
+                .authenticationEntryPoint(authenticationEntryPoint)
+        );
 
         CustomUsernamePasswordAuthenticationFilter customUsernameFilter =
                 new CustomUsernamePasswordAuthenticationFilter(authenticationManager(authenticationConfiguration), jwtUtil);

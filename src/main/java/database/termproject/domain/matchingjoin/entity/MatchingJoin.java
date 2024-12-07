@@ -82,11 +82,16 @@ public class MatchingJoin extends BaseEntity {
 
     }
 
-    public boolean validateOwner(Long loginMemberId){
-        if(this.matching.getPosting().getMember().getId() == loginMemberId){
-            throw new ProjectException(MATCHING_JOIN_CANCELLED_NOT_ALLOWED);
+    public void softDelete(){
+        this.isDeleted = true;
+    }
+
+
+    public void change(Integer count){
+        if(this.count==count){
+            this.isDeleted = true;
         }
-        return true;
+        this.count = count;
     }
 
 }
