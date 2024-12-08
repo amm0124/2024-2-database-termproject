@@ -1,9 +1,11 @@
-
+![image](https://github.com/user-attachments/assets/6edfaa8f-a4b0-48ae-a9fe-31a7e443db55)![image](https://github.com/user-attachments/assets/c0def3ac-88fb-4a85-8959-6e5e44e16502)
 
 
 ## 기능 - 회원  
 
-### 3-1. 회원 가입
+> JWT access token 방식으로 인증 및 인가를 진행한다. 
+ 
+### 1. 회원 가입
 
 - 가입되지 않은 유저는 회원 가입을 할 수 있다.
 - HttpMethod : post
@@ -246,4 +248,580 @@ WHERE m.email = 'email';
 }
 ```
 
-###
+## 기능 - 게시글 관련
+
+> 게시글 본문 (posting) + 댓글 (comment) + 매칭(토너먼트, 매칭)으로 이루어져 있다.
+
+### 1. 게시판 글 쓰기(자유/팁/공지 게시판) 
+
+- HttpMethod : post
+- 로그인 후 얻은 access token을 아래와 같은 형식으로 header에 넣어 주어야 한다.
+    - Authorization: Bearer <accesstoken>
+- endpoint
+    - 자유게시판  : /api/v1/posting/free
+    - 팁게시판 : /api/v1/posting/tip
+    - 공지 게시판 : /api/v1/posting/notice
+- 권한
+    - 자유, 팁 게시판 : ROLE_ADMIN, ROLE_MANAGER, ROLE_USER
+    - 공지 게시판 : ROLE_ADMIN, ROLE_MANAGER
+- request
+
+```jsx
+{
+    "title" : "titie",
+    "game" : "LOL",
+    "content" : "content"
+}
+```
+
+- data jpa method에 mapping되는 SQL
+
+```jsx
+INSERT INTO posting (
+    is_deleted, likes_count, created_at, id, member_id, updated_at, content, game, posting_type, title
+) 
+VALUES (
+    'false',
+    0,
+    NOW(),
+    DEFAULT, -- 프레임워크에서 자동으로 id를 생성해준다.
+    123, -- 접속중인 member의 id
+    NOW(),
+    'content',
+    'LOL',
+    'FREE', --자유면 FREE, 팁이면 TIP, 공지면 NOTICE
+    'title'
+);
+```
+
+- response
+    - 만약 권한이 맞지 않으면 403 Forbidden error를 받는다.
+
+```jsx
+{
+    "postingResponse": {
+        "postingId": 4,
+        "title": "titie",
+        "createdAt": "2024-12-03T14:48:35.7936511",
+        "memberResponse": {
+            "email": "test@email.com",
+            "role": "ROLE_USER",
+            "isDeleted": false,
+            "name": "건호김",
+            "address": "금정구",
+            "addressDetail": "수림로",
+            "phoneNumber": "xxxxxxx"
+        },
+        "content": "content",
+        "postingType": "FREE"
+    },
+    "postingCommentResponseList": null,
+    "matchingResponse": null
+}
+```
+
+### 2. 매칭 게시판 글 쓰기
+
+- 게임 매칭을 만들 때, 자기 자신을 포함시킨다.
+- HttpMethod : POST
+- 로그인 후 얻은 access token을 아래와 같은 형식으로 header에 넣어 주어야 한다.
+    - Authorization: Bearer <accesstoken>
+- endpoint : /api/v1/posting/matching
+- 권한  :  ROLE_ADMIN, ROLE_MANAGER, ROLE_USER
+- request
+
+```jsx
+{
+    "title" : "게임 할 사람 구함~",
+    "content" : "보드게임 고수 구해요",
+    "game" : "보드게임", 
+    "when" : "12월 4일 데이터베이스 시간",
+    "place" : "컴공관 5층",
+    "limit" : 100
+}
+```
+
+- data jpa method에 mapping되는 SQL
+
+```jsx
+INSERT INTO posting (
+    is_deleted, likes_count, created_at, id, member_id, updated_at, content, game, posting_type, title
+) 
+VALUES (
+    'false',
+    0,
+    NOW(),
+    DEFAULT, -- 프레임워크에서 자동으로 id를 생성해준다.
+    123, -- 접속중인 member의 id
+    NOW(),
+    '보드게임 고수 구해요',
+    '보드게임',
+    'MATCHING', --자유면 FREE, 팁이면 TIP, 공지면 NOTICE
+    '게임 할 사람 구함 ~'
+)
+
+INSERT INTO matching (
+    capacity, is_deleted, is_full, now, created_at, id, posting_id, updated_at, event_time, place
+) 
+VALUES (
+    100,         -- capacity
+    'false',     -- is_deleted
+    'false',     -- is_full
+    NOW(),       -- now (현재 시간)
+    NOW(),       -- created_at (현재 시간)
+    DEFAULT,     -- 프레임워크에서 자동으로 id를 생성해준다.
+    1,           -- posting_id (앞서 insert한 posting의 id)
+    NOW(),       -- updated_at (현재 시간)
+    '12월 4일 데이터베이스 시간', 
+    '컴공관 5층'   
+);
+
+INSERT INTO matching_join (
+    count, is_deleted, created_at, id, matching_id, member_id, updated_at
+) 
+VALUES (
+    1,          -- count
+    'false',     -- is_deleted
+    NOW(),       -- created_at (현재 시간)
+    DEFAULT,     -- 프레임워크에서 자동으로 id를 생성해준다.
+    123,         -- matching_id (앞서 insert한 matching의 id)
+    456,         -- 접속중인 member의 id
+    NOW()        -- updated_at (현재 시간)
+);
+```
+
+- response
+
+```jsx
+{
+    "postingResponse": {
+        "postingId": 1,
+        "title": "게임 할 사람 구함~",
+        "game": "보드게임",
+        "createdAt": "2024-12-04T14:59:12.9846963",
+        "memberResponse": {
+            "email": "amm0124@naver.com",
+            "role": "ROLE_ANONYMOUS",
+            "isDeleted": false,
+            "name": "건호김",
+            "address": "금정구",
+            "addressDetail": "수림로",
+            "phoneNumber": "01020492170"
+        },
+        "content": "보드게임 고수 구해요",
+        "postingType": "MATCHING"
+    },
+    "CommentResponseList": null,
+    "matchingResponse": {
+        "matchingId": 1,
+        "postingId": 1,
+        "eventTime": "12월 4일 데이터베이스 시간",
+        "place": "컴공관 5층",
+        "now": 1,
+        "capacity": 100
+    }
+}
+```
+
+### 3. 토너먼트 게시판 글 쓰기 
+
+- 게임 매칭을 만들 때, 자기 자신을 포함시키지 않는다.
+- HttpMethod : POST
+- 로그인 후 얻은 access token을 아래와 같은 형식으로 header에 넣어 주어야 한다.
+    - Authorization: Bearer <accesstoken>
+- endpoint : /api/v1/posting/tournament
+- 권한  :   ROLE_MANAGER
+- 토너먼트 장소는 manager의 사업지를 사용한다.
+- request
+
+```jsx
+{
+    "title" : "xx pc방 게임 대회",
+    "content" : "롤 대회 합니다 인원 100명",
+    "game" : "롤", 
+    "when" : "12월 4일 오전 11시",
+    "limit" : 100
+}
+```
+
+- data jpa method에 mapping되는 SQL
+
+```jsx
+INSERT INTO posting (
+    is_deleted, likes_count, created_at, id, member_id, updated_at, content, game, posting_type, title
+) 
+VALUES (
+    'false',
+    0,
+    NOW(),
+    DEFAULT, -- 프레임워크에서 자동으로 id를 생성해준다.
+    123, -- 접속중인 member의 id
+    NOW(),
+    'xx pc방 게임 대회',
+    '롤',
+    'TOURNAMENT', --자유면 FREE, 팁이면 TIP, 공지면 NOTICE
+    '롤 대회 합니다 인원 100명'
+)
+
+INSERT INTO matching (
+    capacity, is_deleted, is_full, now, created_at, id, posting_id, updated_at, event_time, place
+) 
+VALUES (
+    100,         -- capacity
+    'false',     -- is_deleted
+    'false',     -- is_full
+    NOW(),       -- now (현재 시간)
+    NOW(),       -- created_at (현재 시간)
+    DEFAULT,     -- 프레임워크에서 자동으로 id를 생성해준다.
+    1,           -- posting_id (앞서 insert한 posting의 id)
+    NOW(),       -- updated_at (현재 시간)
+    '12월 4일 오전 11시', 
+    '컴공관 5층'   
+);
+```
+
+- response
+
+```jsx
+{
+    "postingResponse": {
+        "postingId": 2,
+        "title": "xx pc방 게임 대회",
+        "game": "롤",
+        "createdAt": "2024-12-04T17:34:07.682276",
+        "memberResponse": {
+            "email": "amm0124@naver.com",
+            "role": "ROLE_MANAGER",
+            "isDeleted": false,
+            "name": "건호김",
+            "address": "금정구",
+            "addressDetail": "수림로",
+            "phoneNumber": "01020492170"
+        },
+        "content": "롤 대회 합니다 인원 100명",
+        "postingType": "TOURNAMENT"
+    },
+    "CommentResponseList": null,
+    "matchingResponse": {
+        "matchingId": 1,
+        "postingId": 2,
+        "eventTime": "12월 4일 오전 11시",
+        "place": "금정구 비비pc방",
+        "now": 0,
+        "capacity": 100,
+        "matchingJoinResponseList": []
+    }
+}
+```
+
+### 4.  게시판 글 보기
+
+- 권한
+    - 자유/팁/공지 게시판은 인증이 되지 않은 유저도 볼 수 있다.
+    - 매칭/토너먼트 게시판은 인증이 된 유저만 볼 수 있다.
+        - 로그인 후 얻은 access token을 아래와 같은 형식으로 header에 넣어 주어야 한다.
+            - Authorization: Bearer <accesstoken>
+        - ROLE_ADMIN, ROLE_USER, ROLE_MANAGER
+- HttpMethod : GET
+- endpoint
+    - 자유게시판 : /api/v1/posting/free
+    - 팁게시판 : /api/v1/posting/tip
+    - 공지 게시판 : /api/v1/posting/notice
+    - 매칭 게시판 : /api/v1/posting/matching
+    - 토너먼트 게시판 : /api/v1/posting/tournament
+- request : x
+- data jpa method에 mapping되는 SQL
+
+```jsx
+SELECT
+    p1.id,
+    p1.content,
+    p1.created_at,
+    p1.game,
+    p1.is_deleted,
+    p1.likes_count,
+    p1.member_id,
+    p1.posting_type,
+    p1.title,
+    p1.updated_at
+FROM
+    posting p1
+WHERE
+    p1.is_deleted = false
+    AND p1.posting_type = ? --찾고자 하는 게시판 type
+ORDER BY
+    p1.likes_count DESC;
+
+-- 글 쓴 사람을 찾아오기 위한 쿼리
+
+SELECT
+    m.id,
+    m.created_at,
+    m.email,
+    m.is_deleted,
+    m.is_verify,
+    mp.id AS member_profile_id,
+    mp.address,
+    mp.address_detail,
+    mp.name,
+    mp.phone_number,
+    m.password,
+    m.role,
+    m.updated_at
+FROM
+    member m
+LEFT JOIN
+    member_profile mp ON mp.id = m.member_profile_id
+WHERE
+    m.id = ?;
+
+-- 댓글의 깊이 순으로 정렬해서 select
+
+SELECT
+    c.id,
+    c.content,
+    c.created_at,
+    c.depth,
+    c.is_deleted,
+    c.member_id,
+    c.parent_comment_id,
+    c.posting_id,
+    c.updated_at
+FROM
+    comment c
+WHERE
+    c.posting_id = ?
+ORDER BY
+    c.depth;
+    
+    
+-- 삭제되지 않은 매칭을 가져온다
+SELECT
+    m.id,
+    m.capacity,
+    m.created_at,
+    m.event_time,
+    m.is_deleted,
+    m.is_full,
+    m.now,
+    m.place,
+    m.posting_id,
+    m.updated_at
+FROM
+    matching m
+WHERE
+    m.is_deleted = false
+    AND m.posting_id = ?;
+
+-- 삭제되지 않는 멤버를 가져온다
+SELECT
+    mj.id,
+    mj.count,
+    mj.created_at,
+    mj.is_deleted,
+    mj.matching_id,
+    mj.member_id,
+    mj.updated_at
+FROM
+    matching_join mj
+WHERE
+    mj.is_deleted = false
+    AND mj.matching_id = ?;
+```
+
+- response
+
+```jsx
+[
+    {
+        "postingResponse": {
+            "postingId": 1,
+            "title": "게임 할 사람 구함~",
+            "game": "보드게임",
+            "createdAt": "2024-12-08T21:52:03.29021",
+            "memberResponse": {
+                "memberId": 4,
+                "email": "zz",
+                "role": "ROLE_ADMIN",
+                "isDeleted": false,
+                "name": '건호김',
+                "address": '금정구',
+                "addressDetail": '수림로',
+                "phoneNumber": '01012345678'
+            },
+            "content": "보드게임 고수 구해요",
+            "postingType": "MATCHING",
+            "LikesCount": 0
+        },
+        "CommentResponseList": [],
+        "matchingResponse": {
+            "matchingId": 1,
+            "postingId": 1,
+            "eventTime": "12월 4일 데이터베이스 시간",
+            "place": "컴공관 5층",
+            "now": 1,
+            "capacity": 100,
+            "matchingJoinResponseList": [
+                {
+                    "matchingJoinId": 1,
+                    "memberId": 4,
+                    "memberName": null,
+                    "count": 1
+                }
+            ]
+        }
+    }
+]
+```
+
+### 5. 팁/자유/공지/매칭/토너먼트 게시글 삭제 
+
+- is_deleted column을 true로 둠으로 논리적 삭제를 할 수 있다.
+- 이후 삭제된 글은 조회할 수 없다.
+- HttpMethod : DELETE
+- token 필요
+- 로그인 후 얻은 access token을 아래와 같은 형식으로 header에 넣어 주어야 한다.
+    - Authorization: Bearer <accesstoken>
+- 권한 : 자신의 글만 삭제 할 수 있다.
+    - 팁/자유/공지 게시판 : ROLE_ADMIN, ROLE_USER, ROLE_MANAGER
+    - 매칭/토너먼트 게시판 : ROLE_ADMIN, ROLE_MANAGER
+- data jpa method에 mapping되는 SQL
+
+```jsx
+UPDATE posting p
+SET is_deleted = true
+WHERE p.id = posting_id; --유저 입력
+```
+
+- request
+
+```jsx
+{
+    "postingId" : "4"
+}
+```
+
+- resposne : 204 No Content
+
+### 6. 팁/자유/공지/매칭/토너먼트 게시판 내용 업데이트
+
+- HttpMethod : PUT
+- 로그인 후 얻은 access token을 아래와 같은 형식으로 header에 넣어 주어야 한다.
+    - Authorization: Bearer <accesstoken>
+- 권한 : 자신의 글만 업데이트 할 수 있다.
+    - 팁/자유/공지 게시판 : ROLE_ADMIN, ROLE_USER, ROLE_MANAGER
+    - 매칭/토너먼트 게시판 : ROLE_ADMIN, ROLE_MANAGER
+- request
+
+```jsx
+{
+    "postingId" : 2,
+    "title" : "updatex2",
+    "game" : "LOL update x2",
+    "content" : "update contentx2"
+}
+```
+
+- data jpa method에 mapping되는 SQL
+
+```jsx
+UPDATE posting p
+SET 
+    title = 'updatex2',
+    game = 'LOL update x2',
+    content = 'update contentx2',
+    updated_at = NOW()  
+WHERE posting_id = 2;
+```
+
+- response
+
+```jsx
+[
+    {
+        "postingResponse": {
+            "postingId": 2,
+            "title": "updatex2"
+            "game": "LOL update x2",
+            "createdAt": "2024-12-08T21:52:03.29021",
+            "memberResponse": {
+                "memberId": 4,
+                "email": "zz",
+                "role": "ROLE_ADMIN",
+                "isDeleted": false,
+                "name": '건호김',
+                "address": '금정구',
+                "addressDetail": '수림로',
+                "phoneNumber": '01012345678'
+            },
+            "content": "update contentx2",
+            "postingType": "MATCHING",
+            "LikesCount": 0
+        },
+        "CommentResponseList": [],
+        "matchingResponse": {
+            "matchingId": 1,
+            "postingId": 1,
+            "eventTime": "12월 4일 데이터베이스 시간",
+            "place": "컴공관 5층",
+            "now": 1,
+            "capacity": 100,
+            "matchingJoinResponseList": [
+                {
+                    "matchingJoinId": 1,
+                    "memberId": 4,
+                    "memberName": null,
+                    "count": 1
+                }
+            ]
+        }
+    }
+]
+```
+
+### 7. 매칭 게시판/토너먼트 게시판의 매칭 정보 수정 
+
+- HttpMethod : PUT
+- 로그인 후 얻은 access token을 아래와 같은 형식으로 header에 넣어 주어야 한다.
+    - Authorization: Bearer <accesstoken>
+- 권한 : 자신의 글만 업데이트 할 수 있다.
+    - 팁/자유/공지 게시판 : ROLE_ADMIN, ROLE_USER, ROLE_MANAGER
+    - 매칭/토너먼트 게시판 : ROLE_ADMIN, ROLE_MANAGER
+- endpoint
+    - 매칭 : /api/v1/posting/matching
+    - 토너먼트 : /api/v1/posting/tournament
+- request
+    - 현재 등록된 인원보다 더 적게 최대 수용 인원(capacity)를 변경하려 하면 exception 발생
+
+```jsx
+{
+    "matchingId" : 2,
+    "eventTime" : "12월 4일 데이터베이스 시간 - update",
+    "place" : "컴공관 5층 - update",
+    "capacity" : 10000
+}
+```
+
+- response
+
+```jsx
+"matchingResponse": {
+        "matchingId": 2,
+        "postingId": 1,
+        "eventTime": "12월 4일 데이터베이스 시간 - update",
+        "place": "컴공관 5층 - update",
+        "now": 1,
+        "capacity": 10000
+    }
+```
+
+- 예시
+    - 아래 상태일 때 (최대 수용 인원이 13232명)
+    
+![image](https://github.com/user-attachments/assets/9c831f92-c861-467b-a700-cc29db880081)
+
+- 현재 인원보다 더 적은 인원으로 업데이트 요청을 보내면 아래와 같은 error를 response로 받는다.
+
+![image](https://github.com/user-attachments/assets/fff7cb37-f5fa-4eab-8404-ec337fed8e4a)
+
+
