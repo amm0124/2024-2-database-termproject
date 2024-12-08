@@ -2,14 +2,11 @@ package database.termproject.admin.controller;
 
 
 import database.termproject.admin.dto.request.ManagerRegisterRequest;
-import database.termproject.admin.dto.request.MemberRestoreRequest;
+import database.termproject.admin.dto.request.AdminMemberRequest;
 import database.termproject.admin.service.AdminService;
 import database.termproject.domain.member.dto.request.MemberSignUpRequestDto;
 import database.termproject.domain.posting._comment.dto.request.CommentRemoveRequest;
-import database.termproject.domain.posting._comment.dto.request.CommentRequest;
-import database.termproject.domain.posting.controller.PostingController;
 import database.termproject.domain.posting.dto.request.PostingDeleteRequest;
-import database.termproject.domain.posting.dto.request.PostingRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -64,9 +61,14 @@ public class AdminRestController {
     }
 
     @PostMapping("/restore/member")
-    public ResponseEntity<?> restoreMember(@RequestBody MemberRestoreRequest memberRestoreRequest){
+    public ResponseEntity<?> restoreMember(@RequestBody AdminMemberRequest memberRestoreRequest){
         adminService.restoreMemberByAdmin(memberRestoreRequest.memberId());
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/delete/member")
+    public ResponseEntity<?> deleteMember(@RequestBody AdminMemberRequest memberRestoreRequest){
+        adminService.deleteMemberByAdmin(memberRestoreRequest.memberId());
+        return ResponseEntity.ok().build();
+    }
 }

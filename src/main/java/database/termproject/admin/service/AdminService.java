@@ -29,6 +29,13 @@ public class AdminService {
     private final FacilitiesService facilitiesService;
 
     @Transactional
+    public void deleteMemberByAdmin(Long memberId){
+        Member member = memberService.getMemberById(memberId);
+        member.softDelete();
+    }
+
+
+    @Transactional
     public void deletePostingByAdmin(Long postingId){
         Posting posting = postingService.getPostingByPostingId(postingId);
         posting.softDelete();

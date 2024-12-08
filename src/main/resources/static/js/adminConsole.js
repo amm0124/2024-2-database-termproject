@@ -242,3 +242,37 @@ function restoreMember() {
         });
 }
 
+
+function deleteMember() {
+    const memberId = document.getElementById('deleteMemberId').value;
+    if (!memberId) {
+        alert('멤버 ID를 입력해주세요.');
+        return;
+    }
+
+    const token = localStorage.getItem('access');
+
+    fetch(`/api/v1/admin/delete/member`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({
+            memberId: memberId
+        })
+    })
+        .then(response => {
+            if (response.ok) {
+                alert('회원을 삭제하였습니다.');
+            } else {
+                alert('회원 삭제에 실패했습니다.');
+            }
+        })
+        .catch(error => {
+            console.error('회원 삭제 오류:', error);
+            alert('회원 삭제에 실패하였습니다.');
+        });
+}
+
+
