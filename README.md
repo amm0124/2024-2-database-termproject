@@ -1543,3 +1543,88 @@ WHERE matching_join_id = 2
     } 
 ]
 ```
+
+
+## 기능 - 게시글 좋아요 및 싫어요
+
+> 게시글을 조회할 때, 작성된 좋아요를 기준으로 정렬된다.
+> 또한, 하나의 게시글당 한 명의 회원은 좋아요 및 싫어요 기능은 한 번만 이용하도록 구현하였다.
+
+ ### 1. 좋아요/ 싫어요 누르기
+
+- HttpMethod : POST
+- endpoint
+    - 좋아요 : /api/v1/likes/add
+    - 싫어요 : /api/v1/likes/subtract
+- 좋아요나 싫어요 누른 사람은 다시 누를 수 없다
+- 로그인 후 얻은 access token을 아래와 같은 형식으로 header에 넣어 주어야 한다.
+    - Authorization: Bearer <accesstoken>
+- 권한 : ROLE_USER, ROLE_MANAGER, ROLE_ADMIN
+- request
+
+```jsx
+{
+		"postingId" : 1
+}
+```
+
+- data jpa method에 mapping되는 SQL
+
+```jsx
+BEGIN;
+
+INSERT INTO likes (
+    is_deleted, 
+    created_at, 
+    id, 
+    member_id, 
+    posting_id, 
+    updated_at, 
+    likes_type
+) 
+VALUES (
+    'false',     -- is_deleted (예시로 false)
+    NOW(),       -- created_at (현재 시간)
+    DEFAULT,     -- id (자동 증가 컬럼일 경우 DEFAULT 사용)
+    1,           -- member_id (예시로 1)
+    1,           -- posting_id 
+    NOW(),       -- updated_at (현재 시간)
+    'LIKE'       -- likes_type (만약 싫어요면 DISLIKE)
+);
+
+UPDATE likes
+SET likes_count = likes_count + 1,  -- 좋아요는 +1, 싫어요는 -1
+    updated_at = NOW()              -- updated_at을 현재 시간으로 업데이트
+WHERE posting_id = 1;               -- 원하는 posting_id 값을 조건으로 설정
+
+COMMIT;
+
+```
+
+- response
+
+```jsx
+{
+    "postingResponse": {
+        "postingId": 1,
+        "title": "첫 번째 자유게시판 글",
+        "game": "롤",
+        "createdAt": "2024-12-05T23:08:54.244754",
+        "memberResponse": {
+            "memberId": 1,
+            "email": "amm0124@naver.com",
+            "role": "ROLE_ANONYMOUS",
+            "isDeleted": false,
+            "name": "김건호1",
+            "address": "금정구",
+            "addressDetail": "수림로",
+            "phoneNumber": "01020492170"
+        },
+        "content": "1 글",
+        "postingType": "FREE",
+        "LikesCount": 1
+    },
+    "CommentResponseList": [],
+    "matchingResponse": null
+}
+```
