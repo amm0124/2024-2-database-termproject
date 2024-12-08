@@ -1545,86 +1545,64 @@ WHERE matching_join_id = 2
 ```
 
 
-## 기능 - 게시글 좋아요 및 싫어요
+## 기능 - 관리자 콘솔
 
-> 게시글을 조회할 때, 작성된 좋아요를 기준으로 정렬된다.
-> 또한, 하나의 게시글당 한 명의 회원은 좋아요 및 싫어요 기능은 한 번만 이용하도록 구현하였다.
+> 관리자 콘솔을 통해 댓글 삭제, 댓글 복원, 게시글 삭제, 게시글 복원, 회원 삭제, 회원 복구, 매니저 등록을 할 수 있다.
+> 관리자 콘솔 로그인은 IP:8080/admin/login, 회원 가입은 IP:8080/admin/signup, 관리자 콘솔 접속은 IP:8080/admin/console이다.
+> 기능들은 관리자 콘솔에서 사용 가능하다. 아래는 인증되지 않은 유저의 관리자 콘솔 접근이다.
+> ![image](https://github.com/user-attachments/assets/64d3efac-8ae8-4539-8514-7bd15ced2359)
 
- ### 1. 좋아요/ 싫어요 누르기
 
-- HttpMethod : POST
-- endpoint
-    - 좋아요 : /api/v1/likes/add
-    - 싫어요 : /api/v1/likes/subtract
-- 좋아요나 싫어요 누른 사람은 다시 누를 수 없다
-- 로그인 후 얻은 access token을 아래와 같은 형식으로 header에 넣어 주어야 한다.
-    - Authorization: Bearer <accesstoken>
-- 권한 : ROLE_USER, ROLE_MANAGER, ROLE_ADMIN
-- request
+### 2-1. 관리자 콘솔을 통한 게시글 삭제
+
+- 관리자 콘솔에서 가능
+
+### 2-2. 관리자 콘솔을 통한 게시글 복구
+
+- 관리자 콘솔에서 가능
+- native query를 통해 구현
 
 ```jsx
-{
-		"postingId" : 1
-}
+@Query(value = "SELECT * FROM posting WHERE is_deleted = true AND id = :postingId", nativeQuery = true)
+Optional<Posting> findDeletedPostingsById(@Param("postingId") Long postingId);
 ```
 
+### 1. 댓글 제한 및 복원
+
+- 댓글 Id를 입력으로 받는다.
 - data jpa method에 mapping되는 SQL
 
 ```jsx
-BEGIN;
-
-INSERT INTO likes (
-    is_deleted, 
-    created_at, 
-    id, 
-    member_id, 
-    posting_id, 
-    updated_at, 
-    likes_type
-) 
-VALUES (
-    'false',     -- is_deleted (예시로 false)
-    NOW(),       -- created_at (현재 시간)
-    DEFAULT,     -- id (자동 증가 컬럼일 경우 DEFAULT 사용)
-    1,           -- member_id (예시로 1)
-    1,           -- posting_id 
-    NOW(),       -- updated_at (현재 시간)
-    'LIKE'       -- likes_type (만약 싫어요면 DISLIKE)
-);
-
-UPDATE likes
-SET likes_count = likes_count + 1,  -- 좋아요는 +1, 싫어요는 -1
-    updated_at = NOW()              -- updated_at을 현재 시간으로 업데이트
-WHERE posting_id = 1;               -- 원하는 posting_id 값을 조건으로 설정
-
-COMMIT;
-
+update comment
+set is_deleted = true or false
+where id = comment_id(입력);
 ```
 
-- response
+### 2. 게시글 제한 및 복원
+
+- 게시글 Id를 입력으로 받는다.
+- data jpa method에 mapping되는 SQL
 
 ```jsx
-{
-    "postingResponse": {
-        "postingId": 1,
-        "title": "첫 번째 자유게시판 글",
-        "game": "롤",
-        "createdAt": "2024-12-05T23:08:54.244754",
-        "memberResponse": {
-            "memberId": 1,
-            "email": "amm0124@naver.com",
-            "role": "ROLE_ANONYMOUS",
-            "isDeleted": false,
-            "name": "김건호1",
-            "address": "금정구",
-            "addressDetail": "수림로",
-            "phoneNumber": "01020492170"
-        },
-        "content": "1 글",
-        "postingType": "FREE",
-        "LikesCount": 1
-    },
-    "CommentResponseList": [],
-    "matchingResponse": null
-}
+update posting
+set is_deleted = true or false
+where id = posting_id(입력);
 ```
+
+### 3. 회원 제한 및 복원
+
+- 회원 Id를 입력으로 받는다.
+- data jpa method에 mapping되는 SQL
+
+```jsx
+update member
+set is_deleted = true or false
+where id = member_id(입력);
+```
+
+### 4. 매니저 등록
+
+- 매니저 등록에 필요한 정보를 입력받는다
+- Email, Password, Name, Address, Address Detail, Phone Number, Store Name , Store Address, Store Address Detail
+- data jpa method에 mapping되는 SQL : 회원가입 로직과 매니저 등록 SQL을 실행한다.
+
