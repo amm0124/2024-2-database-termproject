@@ -1170,5 +1170,131 @@ WHERE
 ]
 ```
 
+## 기능 - 매니저 시설 등록
 
+> 매니저는 자신의 영업지를 등록 할 수 있다. 토너먼트 개최 시, 매니저의 영업지를 설정한다.
 
+### 1. 시설 등록 api
+
+- HttpMethod : POST
+- 로그인 후 얻은 access token을 아래와 같은 형식으로 header에 넣어 주어야 한다.
+    - Authorization: Bearer <accesstoken>
+- endpoint : /api/v1/facilities/register
+- 권한 : ROLE_MANAGER
+- request
+
+```jsx
+{
+		"storeName" : "금정구 비비pc방",
+		"address" : "금정구",
+		"addressDetail" : "금정구 상세주소 어쩌고"
+}
+```
+
+- data jpa method에 mapping되는 SQL
+
+```jsx
+INSERT INTO facilities(
+    is_deleted,
+    created_at,
+    id,
+    member_id,
+    updated_at,
+    address,
+    address_detail,
+    phone,
+    store_name
+)
+VALUES (
+    'false',    -- is_deleted
+    NOW(),      -- created_at (현재 시간)
+    DEFAULT,    -- id (자동 증가 컬럼일 경우 DEFAULT 사용)
+    1,        -- 현재 접속된 유저
+    NOW(),      -- updated_at (현재 시간)
+    '금정구 어쩌고',  -- address (예시로 주소)
+    '금정구 상세주소',     -- address_detail (예시로 상세 주소)
+    '555-1234',    -- phone (예시로 전화번호)
+    '금정구 비비pc방'     -- store_name (예시로 상호명)
+);
+```
+
+- response
+
+```jsx
+{
+		"facilitiesId": 1, 
+    "storeName": "금정구 비비pc방",
+    "address": "금정구 어쩌고",
+    "addressDetail": "금정구 상세주소 어쩌고",
+    "phone": "01020492170"
+}
+```
+
+### 2. 시설 조회 api
+
+- HttpMethod : GET
+- 로그인 후 얻은 access token을 아래와 같은 형식으로 header에 넣어 주어야 한다.
+    - Authorization: Bearer <accesstoken>
+- 권한 : ROLE_MANAGER
+- endpoint : /api/v1/facilities
+- request 없음 : x
+- data jpa method에 mapping되는 SQL
+
+```jsx
+SELECT * 
+FROM facilities
+WHERE member_id = 접속된 회원 id;
+```
+
+- response
+
+```jsx
+{
+		"facilitiesId": 1, 
+    "storeName": "금정구 비비pc방",
+    "address": "금정구 어쩌고",
+    "addressDetail": "금정구 상세주소 어쩌고",
+    "phone": "01020492170"
+}
+```
+
+### 3. 시설 수정 api
+
+- HttpMethod : PUT
+- 로그인 후 얻은 access token을 아래와 같은 형식으로 header에 넣어 주어야 한다.
+    - Authorization: Bearer <accesstoken>
+- 권한 : ROLE_MANAGER
+- endpoint : /api/v1/facilities/edit
+- request
+
+```jsx
+{
+	"storeName" : "금정구 수정",
+	"address" : "금정구 수정",
+	"addressDetail" : "금정수정 어쩌고"
+}
+```
+
+- data jpa method에 mapping되는 SQL
+
+```jsx
+UPDATE table_name
+SET
+    store_name = '금정구 수정',
+    address = '금정구 수정',
+    address_detail = '금정수정 어쩌고',
+    updated_at = NOW()  -- 업데이트된 시간 기록
+WHERE member_id = 접속된 회원 id;
+```
+
+- response
+
+```jsx
+{
+    "facilitiesId": 1,
+    "storeName": "금정구 수정",
+    "address": "금정구 수정",
+    "addressDetail": "금정수정 어쩌고",
+    "phone": "01020492170"
+}
+```
