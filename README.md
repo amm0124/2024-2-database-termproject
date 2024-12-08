@@ -1,5 +1,3 @@
-![image](https://github.com/user-attachments/assets/6edfaa8f-a4b0-48ae-a9fe-31a7e443db55)![image](https://github.com/user-attachments/assets/c0def3ac-88fb-4a85-8959-6e5e44e16502)
-
 
 ## 기능 - 회원  
 
@@ -823,5 +821,354 @@ WHERE posting_id = 2;
 - 현재 인원보다 더 적은 인원으로 업데이트 요청을 보내면 아래와 같은 error를 response로 받는다.
 
 ![image](https://github.com/user-attachments/assets/fff7cb37-f5fa-4eab-8404-ec337fed8e4a)
+
+
+
+## 기능 - 댓글 관련
+
+> 게시글에 댓글을 달 수 있다. 또한 댓글에 대댓글을 중첩해서 계속 달 수 있다. 댓글 삭제 시, 내용은 '삭제된 댓글입니다'로 변경한다. 사람은 '삭제`로 변경된다.
+> 회원 탈퇴 시, 댓글 내용과 사람 또한 '삭제된 내용입니다' 및 '삭제'로 변경된다.
+
+### 1. 댓글 달기
+
+- HttpMethod : Post
+- endpoint : /api/v1/comment
+- 로그인 후 얻은 access token을 아래와 같은 형식으로 header에 넣어 주어야 한다.
+    - Authorization: Bearer <accesstoken>
+- 권한 : ROLE_ADMIN, ROLE_MANAGER, ROLE_USER
+- request
+
+```jsx
+{
+    "postingId" : 1,
+    "content" : "댓글 comment1"
+}
+```
+
+- data jpa method에 mapping되는 SQL
+
+```jsx
+INSERT INTO comment (
+    depth,
+    is_deleted,
+    created_at,
+    id,
+    member_id,
+    parent_comment_id,
+    posting_id,
+    updated_at,
+    content
+)
+VALUES (
+    1,   
+    false,  
+    NOW(),
+    DEFAULT, --프레임워크에서 계산한다.
+    null,  -- 로그인 한 회원의 id
+    ?,  -- 만약 null이라면 첫 번째 댓글이다. 
+    1, -- 유저 입력  
+    NOW(), 
+    '댓글 comment1'
+);
+
+```
+
+- response :
+
+```jsx
+{
+    "commentId": 1,
+    "postingId": 1,
+    "memberId": 1,
+    "parentCommentId": null,
+    "commentContent": "comment1",
+    "isDeleted": false,
+    "memberName": "건호김",
+    "replyList": []
+}
+```
+
+### 2. 대댓글 달기
+
+- HttpMethod : Post
+- endpoint : /api/v1/comment/reply
+- 로그인 후 얻은 access token을 아래와 같은 형식으로 header에 넣어 주어야 한다.
+    - Authorization: Bearer <accesstoken>
+- 권한 : ROLE_ADMIN, ROLE_MANAGER, ROLE_USER
+- request
+
+```jsx
+{
+    "parentCommentId" : 1,
+    "content" : "대댓글 comment"
+}
+```
+
+- data jpa method에 mapping되는 SQL
+
+```jsx
+INSERT INTO comment (
+    depth,
+    is_deleted,
+    created_at,
+    id,
+    member_id,
+    parent_comment_id,
+    posting_id,
+    updated_at,
+    content
+)
+VALUES (
+    1,   
+    false,  
+    NOW(),
+    DEFAULT, --프레임워크에서 계산한다.
+    null,  -- 로그인 한 회원의 id
+    1,  
+    1, -- 유저 입력  
+    NOW(), 
+    '대댓글 comment'
+);
+
+```
+
+- response
+
+```jsx
+[
+	{
+	    "commentId": 1,
+	    "postingId": 1,
+	    "memberId": 1,
+	    "parentCommentId": null,
+	    "commentContent": "comment1",
+	    "isDeleted": false,
+	    "memberName": "건호김",
+	    "replyList": [
+			    {
+					    "commentId": 4,
+					    "postingId": 1,
+					    "memberId": 1,
+					    "parentCommentId": 1,
+					    "commentContent": "대댓글 comment",
+					    "isDeleted": false,
+					    "memberName": "건호김",
+					    "replyList": []
+						}
+	    ]
+	}
+]
+```
+
+### 3. 댓글 수정
+
+- HttpMethod : PUT
+- endpoint : /api/v1/comment/edit
+- 로그인 후 얻은 access token을 아래와 같은 형식으로 header에 넣어 주어야 한다.
+    - Authorization: Bearer <accesstoken>
+- 권한 : ROLE_ADMIN, ROLE_MANAGER, ROLE_USER
+- 자신의 댓글만 수정 가능하다
+- request
+
+```jsx
+{
+    "commentId" : "1",
+    "content" : "수정사항입니다"
+}
+```
+
+- data jpa method에 mapping되는 SQL
+
+```jsx
+UPDATE comment
+SET 
+		updated_at = NOW(),  -- updated_at을 현재 시간으로 갱신
+    content = '수정사항입니다'         -- 새로운 content 값
+WHERE
+    parent_comment_id = 1;              -- 수정할 댓글의 ID
+```
+
+- response
+
+```jsx
+[
+    {
+        "commentId": 1,
+        "postingId": 1,
+        "memberId": 1,
+        "parentCommentId": null,
+        "commentContent": "수정사항입니다",
+        "isDeleted": false,
+        "memberName": "건호김",
+        "replyList": [
+            {
+                "commentId": 6,
+                "postingId": 1,
+                "memberId": 1,
+                "parentCommentId": 1,
+                "commentContent": "대댓글 comment",
+                "isDeleted": false,
+                "memberName": "건호김",
+                "replyList": []
+            },
+            {
+                "commentId": 7,
+                "postingId": 1,
+                "memberId": 1,
+                "parentCommentId": 1,
+                "commentContent": "대댓글 comment",
+                "isDeleted": false,
+                "memberName": "건호김",
+                "replyList": []
+            }
+        ]
+    },
+    {
+        "commentId": 2,
+        "postingId": 1,
+        "memberId": 1,
+        "parentCommentId": null,
+        "commentContent": "comment1",
+        "isDeleted": false,
+        "memberName": "건호김",
+        "replyList": []
+    },
+    {
+        "commentId": 3,
+        "postingId": 1,
+        "memberId": 1,
+        "parentCommentId": null,
+        "commentContent": "comment1",
+        "isDeleted": false,
+        "memberName": "건호김",
+        "replyList": []
+    },
+    {
+        "commentId": 4,
+        "postingId": 1,
+        "memberId": 1,
+        "parentCommentId": null,
+        "commentContent": "comment1",
+        "isDeleted": false,
+        "memberName": "건호김",
+        "replyList": []
+    },
+    {
+        "commentId": 5,
+        "postingId": 1,
+        "memberId": 1,
+        "parentCommentId": null,
+        "commentContent": "comment1",
+        "isDeleted": false,
+        "memberName": "건호김",
+        "replyList": []
+    }
+]
+```
+
+### 4. 댓글 삭제 (완)
+
+- HttpMethod : DELETE
+- endpoint : /api/v1/comment/remove
+- 로그인 후 얻은 access token을 아래와 같은 형식으로 header에 넣어 주어야 한다.
+    - Authorization: Bearer <accesstoken>
+- 권한 : ROLE_ADMIN, ROLE_MANAGER, ROLE_USER
+- 자신의 댓글만 수정 가능하다
+- request
+
+```jsx
+{
+	"commentId" : 1
+}
+```
+
+- data jpa method에 mapping되는 SQL
+
+```jsx
+UPDATE comment
+SET 
+		is_deleted = true;
+WHERE
+    comment_id = 1;              -- 수정할 댓글의 ID
+```
+
+- response :  게시글에 해당하는 전체 댓글
+
+```jsx
+[
+    {
+        "commentId": 1,
+        "postingId": 1,
+        "memberId": 1,
+        "parentCommentId": null,
+        "commentContent": "삭제된 댓글입니다.",
+        "isDeleted": true,
+        "memberName": "삭제",
+        "replyList": [
+            {
+                "commentId": 6,
+                "postingId": 1,
+                "memberId": 1,
+                "parentCommentId": 1,
+                "commentContent": "대댓글 comment",
+                "isDeleted": false,
+                "memberName": "건호김",
+                "replyList": []
+            },
+            {
+                "commentId": 7,
+                "postingId": 1,
+                "memberId": 1,
+                "parentCommentId": 1,
+                "commentContent": "대댓글 comment",
+                "isDeleted": false,
+                "memberName": "건호김",
+                "replyList": []
+            }
+        ]
+    },
+    {
+        "commentId": 2,
+        "postingId": 1,
+        "memberId": 1,
+        "parentCommentId": null,
+        "commentContent": "삭제된 댓글입니다.",
+        "isDeleted": true,
+        "memberName": "삭제",
+        "replyList": []
+    },
+    {
+        "commentId": 3,
+        "postingId": 1,
+        "memberId": 1,
+        "parentCommentId": null,
+        "commentContent": "comment1",
+        "isDeleted": false,
+        "memberName": "건호김",
+        "replyList": []
+    },
+    {
+        "commentId": 4,
+        "postingId": 1,
+        "memberId": 1,
+        "parentCommentId": null,
+        "commentContent": "comment1",
+        "isDeleted": false,
+        "memberName": "건호김",
+        "replyList": []
+    },
+    {
+        "commentId": 5,
+        "postingId": 1,
+        "memberId": 1,
+        "parentCommentId": null,
+        "commentContent": "comment1",
+        "isDeleted": false,
+        "memberName": "건호김",
+        "replyList": []
+    }
+]
+```
+
 
 
