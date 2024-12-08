@@ -66,6 +66,9 @@ public class Member extends BaseEntity {
         this.role = ROLE_USER;
     }
 
+    public void restore(){
+        this.isDeleted = false;
+    }
 
     public void setRole(Role role){
         this.role = role;

@@ -2,6 +2,7 @@ package database.termproject.admin.controller;
 
 
 import database.termproject.admin.dto.request.ManagerRegisterRequest;
+import database.termproject.admin.dto.request.MemberRestoreRequest;
 import database.termproject.admin.service.AdminService;
 import database.termproject.domain.member.dto.request.MemberSignUpRequestDto;
 import database.termproject.domain.posting._comment.dto.request.CommentRemoveRequest;
@@ -59,6 +60,12 @@ public class AdminRestController {
     @PostMapping("/register/admin")
     public ResponseEntity<?> registerAdmin(@RequestBody MemberSignUpRequestDto memberSignUpRequestDto){
         adminService.registerAdmin(memberSignUpRequestDto);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/restore/member")
+    public ResponseEntity<?> restoreMember(@RequestBody MemberRestoreRequest memberRestoreRequest){
+        adminService.restoreMemberByAdmin(memberRestoreRequest.memberId());
         return ResponseEntity.ok().build();
     }
 

@@ -207,3 +207,38 @@ function registerManager(){
     console.log("dd");
 
 }
+
+
+
+function restoreMember() {
+    const memberId = document.getElementById('restoreMemberId').value;
+    if (!memberId) {
+        alert('멤버 ID를 입력해주세요.');
+        return;
+    }
+
+    const token = localStorage.getItem('access');
+
+    fetch(`/api/v1/admin/restore/member`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({
+            memberId: memberId
+        })
+    })
+        .then(response => {
+            if (response.ok) {
+                alert('회원이 복구되었습니다.');
+            } else {
+                alert('회원 복구에 실패했습니다.');
+            }
+        })
+        .catch(error => {
+            console.error('회원 복구 오류:', error);
+            alert('회원 복구에 실패하였습니다.');
+        });
+}
+

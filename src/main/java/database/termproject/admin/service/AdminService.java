@@ -81,4 +81,11 @@ public class AdminService {
     public void registerAdmin(MemberSignUpRequestDto memberSignUpRequestDto){
         memberService.signUp(memberSignUpRequestDto, ROLE_ADMIN);
     }
+
+    @Transactional
+    public void restoreMemberByAdmin(Long memberId){
+        Member member = memberService.getMemberById(memberId);
+        member.restore();
+    }
+
 }
