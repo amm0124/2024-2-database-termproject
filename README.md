@@ -1298,3 +1298,248 @@ WHERE member_id = 접속된 회원 id;
     "phone": "01020492170"
 }
 ```
+
+
+## 기능 - 매칭/토너먼트(대회) 참여
+
+> 매칭은 기본적으로 1명으로 등록된다. 또한 한 번 등록한 매칭/토너먼트는 다시 등록 할 수 없다. 또한 최대 인원을 넘어서는 등록 할 수 없다.
+> 예외적인 요청을 할 시, 아래와 같은 예외가 발생한다.
+> ![image](https://github.com/user-attachments/assets/625f5a65-6bca-4f90-a84b-611a82976115)
+
+### 1. 게임 매칭 참여
+
+- 게임 매칭은 자동으로 1명으로 등록된다.
+- HttpMethod : POST
+- 로그인 후 얻은 access token을 아래와 같은 형식으로 header에 넣어 주어야 한다.
+    - Authorization: Bearer <accesstoken>
+- endpoint : /api/v1/facilities/register
+- 권한 : ROLE_USER, ROLE_MANAGER, ROLE_ADMIN
+- endpoint : /api/v1/join
+- request
+
+```jsx
+{
+    "matchingId" : 1
+}
+```
+
+- data jpa method에 mapping되는 SQL
+
+```jsx
+INSERT INTO matching_join(
+    count, 
+    is_deleted, 
+    created_at, 
+    id, 
+    matching_id, 
+    member_id, 
+    updated_at
+) 
+VALUES (
+    1,         -- 기본값 1
+    'false',    -- is_deleted (예시로 false)
+    NOW(),      -- created_at (현재 시간)
+    DEFAULT,    -- id (자동 증가 컬럼일 경우 DEFAULT 사용)
+    1,        -- matching_id 
+    2,        -- 현재 접속된 member의 id
+    NOW()       -- updated_at (현재 시간)
+);
+```
+
+- response
+
+```jsx
+[
+    {
+		    "matchingJoinId" : 1,
+        "memberId": 1,
+        "memberName": "건호김",
+        "count": 1
+    },
+    {
+		    "matchingJoinId" : 2,
+        "memberId": 2,
+        "memberName": "건호박",
+        "count": 1
+    }
+]
+```
+
+- 만약 참여 한 매칭에 다시 참여하려 하면 아래와 같은 error 발생.
+
+![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/a3437d6e-ded7-452e-b098-e1c53c9cd606/00326f73-2111-4716-b1b1-d31ed16c598d/image.png)
+
+- 게임 매칭 하고 난 후 매칭 게시글 response
+    - matchingJoinResponseList에 매칭 한 사람의 정보와 수가 들어있다.
+    - 매칭은 기본적으로 자기 자신. 즉, 한 명만 가능하다.
+
+```jsx
+{
+    "postingResponse": {
+        "postingId": 1,
+        "title": "게임 할 사람 구함~",
+        "game": "보드게임",
+        "createdAt": "2024-12-04T17:08:27.9493952",
+        "memberResponse": {
+            "email": "amm0124@naver.com",
+            "role": "ROLE_ANONYMOUS",
+            "isDeleted": false,
+            "name": "건호김",
+            "address": "금정구",
+            "addressDetail": "수림로",
+            "phoneNumber": "01020492170"
+        },
+        "content": "보드게임 고수 구해요",
+        "postingType": "MATCHING"
+    },
+    "CommentResponseList": null,
+    "matchingResponse": {
+        "matchingId": 1,
+        "postingId": 1,
+        "eventTime": "12월 4일 데이터베이스 시간",
+        "place": "컴공관 5층",
+        "now": 1,
+        "capacity": 100,
+        "matchingJoinResponseList": [
+            {
+		            "matchingJoinId" : 1,
+                "memberId": 1,
+                "memberName": "건호김",
+                "count": 1
+            }
+        ]
+    }
+}
+```
+
+### 2. 토너먼트 참여
+
+- 토너먼트는 여러 명 참여 가능하다. 하지만 기본 등록(capacity) 넘어가면 등록할 수 없다
+- endpoint : /api/v1/join
+- HttpMethod : POST
+- 로그인 후 얻은 access token을 아래와 같은 형식으로 header에 넣어 주어야 한다.
+    - Authorization: Bearer <accesstoken>
+- 권한 : ROLE_USER, ROLE_MANAGER, ROLE_ADMIN
+- request
+
+```jsx
+{
+    "matchingId" : 1,
+    "count" : 4
+}
+```
+
+- data jpa method에 mapping되는 SQL
+
+```jsx
+INSERT INTO matching_join(
+    count, 
+    is_deleted, 
+    created_at, 
+    id, 
+    matching_id, 
+    member_id, 
+    updated_at
+) 
+VALUES (
+    4,         -- 유저 입력값
+    'false',    -- is_deleted (예시로 false)
+    NOW(),      -- created_at (현재 시간)
+    DEFAULT,    -- id (자동 증가 컬럼일 경우 DEFAULT 사용)
+    1,        -- matching_id 
+    2,        -- 현재 접속된 member의 id
+    NOW()       -- updated_at (현재 시간)
+);
+```
+
+- response
+
+```jsx
+[
+    {
+		    "matchingJoinId" : 3,
+        "memberId": 1,
+        "memberName": "건호김",
+        "count": 4
+    } 
+]
+```
+
+### 3. 게임 매칭 취소
+
+- HttpMethod : PUT
+- endpoint : /api/v1/join/cancel
+- 로그인 후 얻은 access token을 아래와 같은 형식으로 header에 넣어 주어야 한다.
+    - Authorization: Bearer <accesstoken>
+- 권한 : ROLE_USER, ROLE_MANAGER, ROLE_ADMIN
+- 자신의 게임 매칭만 취소할 수 있다.
+- request
+
+```jsx
+{
+		"matchingJoinId" : 2
+}
+```
+
+- data jpa method에 해당하는 SQL
+
+```jsx
+UPDATE matching_join
+SET is_deleted = 'true',  -- is_deleted 값을 true로 설정
+    updated_at = NOW() -- 업데이트된 시간 기록
+WHERE matching_join_id = 2  -- 예시로 matching_id가 1인 경우
+```
+
+- response
+
+```jsx
+[
+    {
+		    "matchingJoinId" : 3,
+        "memberId": 1,
+        "memberName": "건호김",
+        "count": 4
+    } 
+]
+```
+
+### 4. 토너먼트 매칭 사람 수 변경
+
+- 취소하고 싶으면, 변경하고자 하는 인원을 0으로 입력한다.
+- HttpMethod : PUT
+- endpoint : /api/v1/join/tournament/edit
+- 로그인 후 얻은 access token을 아래와 같은 형식으로 header에 넣어 주어야 한다.
+    - Authorization: Bearer <accesstoken>
+- 권한 : ROLE_USER, ROLE_MANAGER, ROLE_ADMIN
+- 자신의 게임 매칭만 취소할 수 있다.
+- request
+
+```jsx
+{
+		"matchingJoinId" : 2,
+		"count" : 6
+}
+```
+
+- data jpa method에 해당하는 SQL
+    - 만약 0으로 입력 시, 게임 매칭 취소와 동일한 로직이 수행된다.
+
+```jsx
+UPDATE matching_join
+SET count = 6,        -- 유저가 입력한 새로운 count 값
+    updated_at = NOW() -- 업데이트된 시간 기록
+WHERE matching_join_id = 2  
+```
+
+- response
+
+```jsx
+[
+    {
+		    "matchingJoinId" : 2,
+        "memberId": 1,
+        "memberName": "건호김",
+        "count": 6
+    } 
+]
+```
